@@ -92,7 +92,7 @@ export function HajjMap({ day, activeSite, onSelectSite, routeOverride }: HajjMa
     setSelectedLandmark(null);
   }, [activeSite]);
 
-  // Smooth zoom: landmark → tight zoom; site detail → fit bounds; overview → day focus
+  // Smooth zoom: landmark → tight; site detail → fit boundary; overview → fit all focus sites
   useEffect(() => {
     if (!ref.current) return;
     if (activeSite && selectedLandmark && zoomedDetail) {
@@ -108,25 +108,44 @@ export function HajjMap({ day, activeSite, onSelectSite, routeOverride }: HajjMa
       zoomToBounds(ref.current, bounds, reduced);
       return;
     }
+    const focusIds = day.camera.focus;
+    if (focusIds.length >= 2) {
+      const pad = 80;
+      const pts = focusIds.map((id) => SITE_POS[id]);
+      const minX = Math.min(...pts.map((p) => p.x)) - pad;
+      const maxX = Math.max(...pts.map((p) => p.x)) + pad;
+      const minY = Math.min(...pts.map((p) => p.y)) - pad;
+      const maxY = Math.max(...pts.map((p) => p.y)) + pad;
+      zoomToBounds(
+        ref.current,
+        { minX, maxX, minY, maxY, cx: (minX + maxX) / 2, cy: (minY + maxY) / 2, width: maxX - minX, height: maxY - minY },
+        reduced,
+        3.5,
+      );
+      return;
+    }
     const p = SITE_POS[focusSite];
     zoomToPoint(ref.current, p.x, p.y, 1.55, reduced);
-  }, [activeSite, focusSite, reduced, selectedLandmark, zoomedDetail]);
+  }, [activeSite, focusSite, reduced, selectedLandmark, zoomedDetail, day.camera.focus]);
 
+
+  const highlightFocus = routeOverride ?? day.camera.focus;
 
   const routeD = useMemo(() => {
-    const pts = day.camera.focus.map((id) => SITE_POS[id]);
+    const pts = highlightFocus.map((id) => SITE_POS[id]);
     if (pts.length < 2) return "";
     return pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
-  }, [day.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [highlightFocus]);
 
   const routeTotalKm = useMemo(() => {
-    const focus = day.camera.focus;
     let total = 0;
-    for (let i = 0; i < focus.length - 1; i++) {
-      total += haversineKm(locations[focus[i]].coords, locations[focus[i + 1]].coords);
+    for (let i = 0; i < highlightFocus.length - 1; i++) {
+      total += haversineKm(locations[highlightFocus[i]].coords, locations[highlightFocus[i + 1]].coords);
     }
     return total;
-  }, [day.camera.focus]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [highlightFocus]);
+
+
 
 
 
