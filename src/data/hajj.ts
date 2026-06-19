@@ -29,7 +29,7 @@ export interface TimelineEvent {
 }
 
 export interface HajjDay {
-  id: "8" | "9" | "10" | "11" | "12" | "13";
+  id: "8" | "9a" | "9b" | "10" | "11" | "12" | "13";
   hijriLabel: string;
   name: string;
   subtitle: string;
