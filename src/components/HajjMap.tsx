@@ -148,7 +148,7 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
           ref={ref}
           initialScale={1}
           minScale={0.8}
-          maxScale={6}
+          maxScale={14}
           centerOnInit
           wheel={{ step: 0.12 }}
           doubleClick={{ step: 0.7 }}
