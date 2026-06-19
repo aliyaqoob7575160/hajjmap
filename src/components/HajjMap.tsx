@@ -114,6 +114,21 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
     return pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
   }, [day.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const routeTotalKm = useMemo(() => {
+    const focus = day.camera.focus;
+    let total = 0;
+    for (let i = 0; i < focus.length - 1; i++) {
+      const seg = ROUTE_SEGMENTS.find(
+        (s) =>
+          (s.from === focus[i] && s.to === focus[i + 1]) ||
+          (s.from === focus[i + 1] && s.to === focus[i]),
+      );
+      if (seg) total += seg.km;
+    }
+    return total;
+  }, [day.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+
   const baseRouteD = ROUTE_ORDER.map((id, i) => {
     const p = SITE_POS[id];
     return `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`;
