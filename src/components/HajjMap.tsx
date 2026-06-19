@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { TransformWrapper, TransformComponent, type ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowLeft, Navigation } from "lucide-react";
 import { locations, type HajjDay, type LocationId } from "@/data/hajj";
 import { getSiteDetail } from "@/data/site-details";
