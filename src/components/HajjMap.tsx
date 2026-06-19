@@ -9,6 +9,7 @@ import {
   formatDistanceKm,
   getSiteOverviewZone,
   getSiteZoomBounds,
+  haversineKm,
   ROUTE_ORDER,
   type MapBounds,
 } from "@/lib/map-projection";
