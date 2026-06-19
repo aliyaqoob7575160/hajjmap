@@ -47,16 +47,21 @@ function Index() {
     if (phase9 === "9.1") {
       return {
         ...baseDay,
-        camera: { focus: ["mina", "arafat"] as LocationId[], primary: "arafat" as LocationId },
         events: baseDay.events.filter((e) => ["9-1", "9-2", "9-3"].includes(e.id)),
       };
     }
     return {
       ...baseDay,
-      camera: { focus: ["arafat", "muzdalifah"] as LocationId[], primary: "muzdalifah" as LocationId },
       events: baseDay.events.filter((e) => e.id === "9-4"),
     };
   }, [baseDay, phase9]);
+  const routeOverride: LocationId[] | undefined =
+    baseDay.id === "9" && phase9 === "9.1"
+      ? ["mina", "arafat"]
+      : baseDay.id === "9" && phase9 === "9.2"
+        ? ["arafat", "muzdalifah"]
+        : undefined;
+
   const umrahStep = umrahSteps.find((s) => s.id === umrahStepId) ?? umrahSteps[0];
 
   const handleDayChange = (id: string) => {
