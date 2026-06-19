@@ -1,4 +1,5 @@
 import { locations, type LocationId } from "@/data/hajj";
+import { siteDetails } from "@/data/site-details";
 
 /** Pilgrimage route order (Makkah → Mina → Muzdalifah → Arafat). */
 export const ROUTE_ORDER: LocationId[] = ["haram", "mina", "muzdalifah", "arafat"];
@@ -23,6 +24,67 @@ export interface MapLayout {
   segments: RouteSegment[];
   viewW: number;
   viewH: number;
+  project: (lat: number, lon: number) => MapPoint;
+  projectCoords: (coords: [number, number]) => MapPoint;
+}
+
+export interface MapBounds {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+  cx: number;
+  cy: number;
+  width: number;
+  height: number;
+}
+
+/** Tap zone on the overview map — dashed box around each site pin. */
+export function getSiteOverviewZone(
+  siteId: LocationId,
+  positions: Record<LocationId, MapPoint>,
+  zoneW = 150,
+  zoneH = 110,
+): MapBounds {
+  const p = positions[siteId];
+  return {
+    minX: p.x - zoneW / 2,
+    maxX: p.x + zoneW / 2,
+    minY: p.y - zoneH / 2,
+    maxY: p.y + zoneH / 2,
+    cx: p.x,
+    cy: p.y,
+    width: zoneW,
+    height: zoneH,
+  };
+}
+
+/** Bounds to zoom into when exploring a site (boundary + landmarks). */
+export function getSiteZoomBounds(
+  siteId: LocationId,
+  project: (lat: number, lon: number) => MapPoint,
+  padding = 48,
+): MapBounds {
+  const detail = siteDetails[siteId];
+  const pts = [
+    ...detail.boundary,
+    ...detail.landmarks.map((l) => l.coords),
+  ].map(([lat, lon]) => project(lat, lon));
+
+  const minX = Math.min(...pts.map((p) => p.x)) - padding;
+  const maxX = Math.max(...pts.map((p) => p.x)) + padding;
+  const minY = Math.min(...pts.map((p) => p.y)) - padding;
+  const maxY = Math.max(...pts.map((p) => p.y)) + padding;
+  return {
+    minX,
+    maxX,
+    minY,
+    maxY,
+    cx: (minX + maxX) / 2,
+    cy: (minY + maxY) / 2,
+    width: maxX - minX,
+    height: maxY - minY,
+  };
 }
 
 /** Great-circle distance in kilometres. */
@@ -102,34 +164,6 @@ export function computeDetailLayout(
   };
 }
 
-function fitToViewBox(
-  points: Record<LocationId, MapPoint>,
-  viewW: number,
-  viewH: number,
-  margin: number,
-): Record<LocationId, MapPoint> {
-  const vals = Object.values(points);
-  const minX = Math.min(...vals.map((p) => p.x));
-  const maxX = Math.max(...vals.map((p) => p.x));
-  const minY = Math.min(...vals.map((p) => p.y));
-  const maxY = Math.max(...vals.map((p) => p.y));
-
-  const spanX = maxX - minX || 1;
-  const spanY = maxY - minY || 1;
-  const innerW = viewW - margin * 2;
-  const innerH = viewH - margin * 2;
-  const scale = Math.min(innerW / spanX, innerH / spanY);
-
-  const out = {} as Record<LocationId, MapPoint>;
-  for (const id of ROUTE_ORDER) {
-    const p = points[id];
-    out[id] = {
-      x: margin + (p.x - minX) * scale,
-      y: margin + (p.y - minY) * scale,
-    };
-  }
-  return out;
-}
 
 export function computeSitePositions(
   viewW = 1000,
@@ -144,7 +178,30 @@ export function computeSitePositions(
     localKm[id] = toLocalKm(lat, lon, origin);
   }
 
-  const positions = fitToViewBox(localKm, viewW, viewH, margin);
+  const vals = Object.values(localKm);
+  const rawMinX = Math.min(...vals.map((p) => p.x));
+  const rawMaxX = Math.max(...vals.map((p) => p.x));
+  const rawMinY = Math.min(...vals.map((p) => p.y));
+  const rawMaxY = Math.max(...vals.map((p) => p.y));
+  const spanX = rawMaxX - rawMinX || 1;
+  const spanY = rawMaxY - rawMinY || 1;
+  const innerW = viewW - margin * 2;
+  const innerH = viewH - margin * 2;
+  const scale = Math.min(innerW / spanX, innerH / spanY);
+
+  const project = (lat: number, lon: number): MapPoint => {
+    const p = toLocalKm(lat, lon, origin);
+    return {
+      x: margin + (p.x - rawMinX) * scale,
+      y: margin + (p.y - rawMinY) * scale,
+    };
+  };
+
+  const positions = {} as Record<LocationId, MapPoint>;
+  for (const id of ROUTE_ORDER) {
+    const [lat, lon] = locations[id].coords;
+    positions[id] = project(lat, lon);
+  }
 
   const segments: RouteSegment[] = [];
   for (let i = 0; i < ROUTE_ORDER.length - 1; i++) {
@@ -159,5 +216,12 @@ export function computeSitePositions(
     segments.push({ from, to, km, label: formatDistanceKm(km), midX, midY, angleDeg });
   }
 
-  return { positions, segments, viewW, viewH };
+  return {
+    positions,
+    segments,
+    viewW,
+    viewH,
+    project,
+    projectCoords: (coords) => project(coords[0], coords[1]),
+  };
 }

@@ -1,20 +1,14 @@
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { ArrowLeft, Navigation } from "lucide-react";
+import { Navigation } from "lucide-react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { locations, type LocationId } from "@/data/hajj";
 import { getSiteDetail } from "@/data/site-details";
-import { CampPanel } from "@/components/CampPanel";
-import { useCampPin } from "@/hooks/use-camp-pin";
-import { useLiveLocation } from "@/hooks/use-live-location";
-import { usePrefersReducedMotion } from "@/hooks/use-theme";
 import { Button } from "@/components/ui/button";
-import { openMapsNavigation, pointInPolygon } from "@/lib/geo";
+import { openMapsNavigation } from "@/lib/geo";
 import { computeDetailLayout } from "@/lib/map-projection";
 
 interface SiteDetailMapProps {
   siteId: LocationId;
-  onBack?: () => void;
   focusLandmarkId?: string | null;
   showSaiPath?: boolean;
   headerLabel?: string;
@@ -23,7 +17,6 @@ interface SiteDetailMapProps {
 
 export function SiteDetailMap({
   siteId,
-  onBack,
   focusLandmarkId = null,
   showSaiPath = false,
   headerLabel = "Site detail",
@@ -32,22 +25,12 @@ export function SiteDetailMap({
   const detail = getSiteDetail(siteId);
   const site = locations[siteId];
   const displayTitle = headerTitle ?? site.name;
-  const reduced = usePrefersReducedMotion();
-  const { camp, draftLabel, setDraftLabel, saveCamp, clearCamp } = useCampPin(siteId);
-  const [locationOn, setLocationOn] = useState(false);
-  const { position, error } = useLiveLocation(locationOn);
   const [selectedLandmark, setSelectedLandmark] = useState<string | null>(null);
 
-  // Layout is fitted only from stable points (boundary, landmarks, saved camp).
-  // Live position is intentionally excluded so landmarks don't jump/rescale as the pilgrim walks.
   const layout = useMemo(() => {
-    const allCoords = [
-      ...detail.boundary,
-      ...detail.landmarks.map((l) => l.coords),
-      ...(camp ? ([[camp.lat, camp.lon]] as [number, number][]) : []),
-    ];
+    const allCoords = [...detail.boundary, ...detail.landmarks.map((l) => l.coords)];
     return computeDetailLayout(allCoords);
-  }, [detail, camp]);
+  }, [detail]);
 
   const boundaryPath = useMemo(() => {
     return detail.boundary
@@ -57,27 +40,6 @@ export function SiteDetailMap({
       })
       .join(" ");
   }, [detail.boundary, layout]);
-
-  const insideBoundary =
-    position != null ? pointInPolygon([position.lat, position.lon], detail.boundary) : null;
-
-  // Project the live position onto the fixed layout, clamping to the viewBox so the
-  // "You" marker stays visible even when the pilgrim is just outside the mapped area.
-  const PAD = 18;
-  const rawUser = position ? layout.project(position.lat, position.lon) : null;
-  const userOffArea =
-    rawUser != null &&
-    (rawUser.x < PAD ||
-      rawUser.x > layout.viewW - PAD ||
-      rawUser.y < PAD ||
-      rawUser.y > layout.viewH - PAD);
-  const userPoint = rawUser
-    ? {
-        x: Math.max(PAD, Math.min(layout.viewW - PAD, rawUser.x)),
-        y: Math.max(PAD, Math.min(layout.viewH - PAD, rawUser.y)),
-      }
-    : null;
-  const campPoint = camp ? layout.project(camp.lat, camp.lon) : null;
 
   const saiPathD = useMemo(() => {
     if (!showSaiPath || !detail.saiPath?.length) return "";
@@ -89,58 +51,11 @@ export function SiteDetailMap({
       .join(" ");
   }, [showSaiPath, detail.saiPath, layout]);
 
-  const handleSetCamp = () => {
-    if (!position) return;
-    saveCamp(position.lat, position.lon, draftLabel);
-  };
-
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        {onBack ? (
-          <Button type="button" variant="ghost" size="sm" className="rounded-full" onClick={onBack}>
-            <ArrowLeft className="mr-1.5 h-4 w-4" />
-            Route map
-          </Button>
-        ) : (
-          <div />
-        )}
-        <div className="text-right">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">{headerLabel}</p>
-          <p className="font-semibold">{displayTitle}</p>
-        </div>
-      </div>
-
-      <CampPanel
-        camp={camp}
-        draftLabel={draftLabel}
-        onLabelChange={setDraftLabel}
-        livePosition={position}
-        locationError={error}
-        onSetCamp={handleSetCamp}
-        onClearCamp={clearCamp}
-        canSetCamp={!!position}
-        locationEnabled={locationOn}
-        onEnableLocation={() => setLocationOn(true)}
-      />
-
-      {/* Status strip */}
-      <div className="flex flex-wrap gap-2 text-xs">
-        {insideBoundary === true && (
-          <span className="rounded-full bg-primary/15 px-3 py-1 font-medium text-primary">
-            Inside {detail.boundaryLabel}
-          </span>
-        )}
-        {insideBoundary === false && (
-          <span className="rounded-full bg-gold/15 px-3 py-1 font-medium text-gold-foreground">
-            Outside {detail.boundaryLabel} — check with your group
-          </span>
-        )}
-        {position && (
-          <span className="rounded-full bg-secondary px-3 py-1 text-muted-foreground">
-            GPS ±{Math.round(position.accuracy)} m
-          </span>
-        )}
+      <div className="text-right">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">{headerLabel}</p>
+        <p className="font-semibold">{displayTitle}</p>
       </div>
 
       <div className="relative h-[55vh] min-h-[420px] w-full overflow-hidden rounded-3xl border border-border/60 bg-card shadow-[var(--shadow-soft)]">
@@ -164,10 +79,9 @@ export function SiteDetailMap({
 
               <rect width={layout.viewW} height={layout.viewH} fill="url(#detailTerrain)" />
 
-              {/* Ritual boundary */}
               <path
                 d={`${boundaryPath} Z`}
-                fill={insideBoundary ? "color-mix(in oklab, var(--color-primary) 12%, transparent)" : "color-mix(in oklab, var(--color-gold) 8%, transparent)"}
+                fill="color-mix(in oklab, var(--color-primary) 10%, transparent)"
                 stroke="var(--color-primary)"
                 strokeWidth={2}
                 strokeDasharray="8 6"
@@ -186,7 +100,6 @@ export function SiteDetailMap({
                 />
               )}
 
-              {/* North compass */}
               <g transform={`translate(${layout.viewW - 56} 56)`} aria-hidden="true">
                 <circle r={18} fill="var(--color-card)" stroke="var(--color-border)" opacity={0.95} />
                 <path d="M0 -11 L4 4 L0 1 L-4 4 Z" fill="var(--color-primary)" />
@@ -195,7 +108,6 @@ export function SiteDetailMap({
                 </text>
               </g>
 
-              {/* Landmarks */}
               {detail.landmarks.map((lm) => {
                 const p = layout.projectCoords(lm.coords);
                 const selected = selectedLandmark === lm.id;
@@ -207,9 +119,7 @@ export function SiteDetailMap({
                     className="cursor-pointer"
                     onClick={() => setSelectedLandmark(selected ? null : lm.id)}
                   >
-                    {focused && (
-                      <circle r={28} fill="url(#landmarkFocusGlow)" />
-                    )}
+                    {focused && <circle r={28} fill="url(#landmarkFocusGlow)" />}
                     <circle
                       r={focused ? 14 : selected ? 14 : 10}
                       fill="var(--color-card)"
@@ -223,50 +133,12 @@ export function SiteDetailMap({
                   </g>
                 );
               })}
-
-              {/* Camp pin */}
-              {campPoint && camp && (
-                <g
-                  transform={`translate(${campPoint.x} ${campPoint.y})`}
-                  className="cursor-pointer"
-                  onClick={() => openMapsNavigation(camp.lat, camp.lon)}
-                >
-                  <circle r={22} fill="color-mix(in oklab, var(--color-gold) 25%, transparent)" />
-                  <circle r={12} fill="var(--color-card)" stroke="var(--color-gold)" strokeWidth={2.5} />
-                  <text y={4} textAnchor="middle" fontSize={14} fill="var(--color-gold)">
-                    ⛺
-                  </text>
-                  <text y={28} textAnchor="middle" fontSize={10} fontWeight={600} fill="var(--color-foreground)">
-                    {camp.label}
-                  </text>
-                  <title>Tap to open walking directions in Google Maps</title>
-                </g>
-              )}
-
-              {/* Live user position */}
-              {userPoint && (
-                <motion.g
-                  animate={{ x: userPoint.x, y: userPoint.y, scale: reduced ? 1 : [1, 1.06, 1] }}
-                  transition={{
-                    x: { type: "spring", stiffness: 90, damping: 18 },
-                    y: { type: "spring", stiffness: 90, damping: 18 },
-                    scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-                  }}
-                >
-                  <circle r={20} fill="color-mix(in oklab, var(--color-primary) 20%, transparent)" />
-                  <circle r={11} fill="var(--color-primary)" stroke="var(--color-card)" strokeWidth={2} />
-                  <circle r={4} fill="var(--color-primary-foreground)" />
-                  <text y={26} textAnchor="middle" fontSize={9} fontWeight={600} fill="var(--color-primary)">
-                    {userOffArea ? "You (nearby)" : "You"}
-                  </text>
-                </motion.g>
-              )}
             </svg>
           </TransformComponent>
         </TransformWrapper>
 
         <div className="pointer-events-none absolute bottom-3 left-4 right-4 text-xs text-muted-foreground">
-          Dotted line = approximate boundary · tap camp pin for Google Maps · tap ⛺ landmark for info below
+          Dotted line = approximate boundary · tap a landmark for info below
         </div>
       </div>
 
@@ -296,11 +168,6 @@ export function SiteDetailMap({
           })()}
         </div>
       )}
-
-      <p className="text-[11px] leading-relaxed text-muted-foreground">
-        Boundaries are approximate guides only — not official survey lines. GPS accuracy in tent cities is often
-        10–50 m. Always follow your mutawwif and on-site signage.
-      </p>
     </div>
   );
 }
