@@ -87,9 +87,17 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
     setSelectedLandmark(null);
   }, [activeSite]);
 
-  // Smooth zoom: site detail → fit bounds; overview → day focus or full route
+  // Smooth zoom: landmark → tight zoom; site detail → fit bounds; overview → day focus
   useEffect(() => {
     if (!ref.current) return;
+    if (activeSite && selectedLandmark && zoomedDetail) {
+      const lm = zoomedDetail.landmarks.find((l) => l.id === selectedLandmark);
+      if (lm) {
+        const p = projectCoords(lm.coords);
+        zoomToPoint(ref.current, p.x, p.y, 11, reduced, 600);
+        return;
+      }
+    }
     if (activeSite) {
       const bounds = getSiteZoomBounds(activeSite, project);
       zoomToBounds(ref.current, bounds, reduced);
@@ -97,7 +105,8 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
     }
     const p = SITE_POS[focusSite];
     zoomToPoint(ref.current, p.x, p.y, 1.55, reduced);
-  }, [activeSite, focusSite, reduced]);
+  }, [activeSite, focusSite, reduced, selectedLandmark, zoomedDetail]);
+
 
   const routeD = useMemo(() => {
     const pts = day.camera.focus.map((id) => SITE_POS[id]);
