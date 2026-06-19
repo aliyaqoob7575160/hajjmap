@@ -83,6 +83,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Walk through every day of Hajj on an interactive map, with timelines and the duas for each moment." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Labbayk — A Hajj Companion" },
+      { name: "twitter:description", content: "Walk through every day of Hajj on an interactive map, with timelines and the duas for each moment." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/da0d4d6c-d169-4027-a1f9-8a00d3583238/id-preview-59a9b4c3--a1760980-98b7-46da-a832-4b7192278d24.lovable.app-1781830404841.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/da0d4d6c-d169-4027-a1f9-8a00d3583238/id-preview-59a9b4c3--a1760980-98b7-46da-a832-4b7192278d24.lovable.app-1781830404841.png" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
