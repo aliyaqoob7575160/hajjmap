@@ -417,11 +417,17 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
               ? "Dotted line = approximate boundary · tap a landmark for details"
               : "Distances approximate · tap a site box to zoom in"}
           </span>
+          {!activeSite && routeTotalKm > 0 && (
+            <span className="pointer-events-auto rounded-full border border-gold/50 bg-card/90 px-3 py-1 font-semibold text-gold shadow-sm">
+              Route · {formatDistanceKm(routeTotalKm)}
+            </span>
+          )}
           <span className="hidden font-arabic text-base sm:inline">
             {locations[activeSite ?? focusSite].arabicName}
           </span>
         </div>
         </div>
+
 
         {activeSite && zoomedDetail && (
           <aside className="rounded-3xl border border-border/60 bg-card p-3 shadow-[var(--shadow-soft)] lg:max-h-[55vh] lg:overflow-y-auto">
