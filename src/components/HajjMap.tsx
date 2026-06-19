@@ -6,6 +6,7 @@ import { locations, type HajjDay, type LocationId } from "@/data/hajj";
 import { getSiteDetail } from "@/data/site-details";
 import {
   computeSitePositions,
+  formatDistanceKm,
   getSiteOverviewZone,
   getSiteZoomBounds,
   ROUTE_ORDER,
@@ -113,6 +114,21 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
     if (pts.length < 2) return "";
     return pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
   }, [day.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const routeTotalKm = useMemo(() => {
+    const focus = day.camera.focus;
+    let total = 0;
+    for (let i = 0; i < focus.length - 1; i++) {
+      const seg = ROUTE_SEGMENTS.find(
+        (s) =>
+          (s.from === focus[i] && s.to === focus[i + 1]) ||
+          (s.from === focus[i + 1] && s.to === focus[i]),
+      );
+      if (seg) total += seg.km;
+    }
+    return total;
+  }, [day.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
   const baseRouteD = ROUTE_ORDER.map((id, i) => {
     const p = SITE_POS[id];
@@ -402,11 +418,17 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
               ? "Dotted line = approximate boundary · tap a landmark for details"
               : "Distances approximate · tap a site box to zoom in"}
           </span>
+          {!activeSite && routeTotalKm > 0 && (
+            <span className="pointer-events-auto rounded-full border border-gold/50 bg-card/90 px-3 py-1 font-semibold text-gold shadow-sm">
+              Route · {formatDistanceKm(routeTotalKm)}
+            </span>
+          )}
           <span className="hidden font-arabic text-base sm:inline">
             {locations[activeSite ?? focusSite].arabicName}
           </span>
         </div>
         </div>
+
 
         {activeSite && zoomedDetail && (
           <aside className="rounded-3xl border border-border/60 bg-card p-3 shadow-[var(--shadow-soft)] lg:max-h-[55vh] lg:overflow-y-auto">
