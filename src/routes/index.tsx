@@ -127,7 +127,7 @@ function Index() {
             )}
 
             <section aria-label="Map">
-              <HajjMap day={day} activeSite={activeSite} onSelectSite={setActiveSite} />
+              <HajjMap day={day} activeSite={activeSite} onSelectSite={setActiveSite} routeOverride={routeOverride} />
             </section>
 
 
