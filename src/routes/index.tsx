@@ -5,7 +5,7 @@ import { Header } from "@/components/Header";
 import { HajjMap } from "@/components/HajjMap";
 import { Timeline } from "@/components/Timeline";
 import { DuaSheet } from "@/components/DuaSheet";
-import { BeforeHajjUmrahCard } from "@/components/BeforeHajjUmrahCard";
+
 import { UmrahTimeline } from "@/components/UmrahTimeline";
 import { SiteDetailMap } from "@/components/SiteDetailMap";
 import { days, type LocationId } from "@/data/hajj";
