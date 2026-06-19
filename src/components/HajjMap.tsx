@@ -120,15 +120,11 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
     const focus = day.camera.focus;
     let total = 0;
     for (let i = 0; i < focus.length - 1; i++) {
-      const seg = ROUTE_SEGMENTS.find(
-        (s) =>
-          (s.from === focus[i] && s.to === focus[i + 1]) ||
-          (s.from === focus[i + 1] && s.to === focus[i]),
-      );
-      if (seg) total += seg.km;
+      total += haversineKm(locations[focus[i]].coords, locations[focus[i + 1]].coords);
     }
     return total;
-  }, [day.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [day.camera.focus]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
 
   const baseRouteD = ROUTE_ORDER.map((id, i) => {
