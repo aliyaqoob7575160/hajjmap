@@ -101,7 +101,6 @@ function Index() {
       <main className="mx-auto max-w-7xl px-4 pb-24 pt-6 sm:px-6 sm:pt-10">
         {journey === "hajj" ? (
           <>
-            <BeforeHajjUmrahCard onOpenUmrah={openUmrahGuide} />
 
             {baseDay.id === "9" && (
               <div className="mb-3 flex flex-wrap gap-1.5 rounded-full border border-border/70 bg-card p-1 text-xs font-semibold sm:text-sm">
