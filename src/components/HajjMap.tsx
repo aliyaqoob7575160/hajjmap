@@ -2,44 +2,48 @@ import { useEffect, useMemo, useRef } from "react";
 import { TransformWrapper, TransformComponent, type ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 import { motion, AnimatePresence } from "framer-motion";
 import { locations, type HajjDay, type LocationId } from "@/data/hajj";
+import { computeSitePositions, ROUTE_ORDER } from "@/lib/map-projection";
 import { usePrefersReducedMotion } from "@/hooks/use-theme";
+import { SiteDetailMap } from "@/components/SiteDetailMap";
 
-const SITE_POS: Record<LocationId, { x: number; y: number }> = {
-  haram: { x: 150, y: 135 },
-  mina: { x: 445, y: 178 },
-  muzdalifah: { x: 655, y: 325 },
-  arafat: { x: 860, y: 472 },
-};
-
-const VIEW_W = 1000;
-const VIEW_H = 600;
+const MAP_LAYOUT = computeSitePositions();
+const { positions: SITE_POS, segments: ROUTE_SEGMENTS, viewW: VIEW_W, viewH: VIEW_H } = MAP_LAYOUT;
 
 interface HajjMapProps {
   day: HajjDay;
   activeSite: LocationId | null;
-  onSelectSite: (id: LocationId) => void;
+  onSelectSite: (id: LocationId | null) => void;
 }
 
 export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
+  if (activeSite) {
+    return <SiteDetailMap siteId={activeSite} onBack={() => onSelectSite(null)} />;
+  }
+  return <OverviewRouteMap day={day} onSelectSite={onSelectSite} />;
+}
+
+function OverviewRouteMap({
+  day,
+  onSelectSite,
+}: {
+  day: HajjDay;
+  onSelectSite: (id: LocationId) => void;
+}) {
   const ref = useRef<ReactZoomPanPinchRef | null>(null);
   const reduced = usePrefersReducedMotion();
 
-  const focusSite = activeSite ?? day.camera.primary;
+  const focusSite = day.camera.primary;
 
-  // Animate camera to focus site
   useEffect(() => {
     if (!ref.current) return;
     const p = SITE_POS[focusSite];
     const targetScale = 1.55;
-    // center of svg in displayed wrapper coordinates is approximate; use setTransform
-    // wrapper sized to width 100%; we estimate by using percentage center
-    const containerEl = (ref.current.instance as any)?.wrapperComponent as HTMLElement | undefined;
+    const containerEl = (ref.current.instance as { wrapperComponent?: HTMLElement }).wrapperComponent;
     if (!containerEl) return;
     const rect = containerEl.getBoundingClientRect();
     const sx = rect.width / VIEW_W;
     const sy = rect.height / VIEW_H;
     const baseScale = Math.min(sx, sy);
-    // svg is preserveAspectRatio meet centered; compute the rendered offset
     const renderedW = VIEW_W * baseScale;
     const renderedH = VIEW_H * baseScale;
     const offX = (rect.width - renderedW) / 2;
@@ -51,12 +55,16 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
     ref.current.setTransform(positionX, positionY, targetScale, reduced ? 0 : 600, "easeOut");
   }, [focusSite, reduced]);
 
-  // Build the highlighted route through day's focus sites
   const routeD = useMemo(() => {
     const pts = day.camera.focus.map((id) => SITE_POS[id]);
     if (pts.length < 2) return "";
     return pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
   }, [day.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const baseRouteD = ROUTE_ORDER.map((id, i) => {
+    const p = SITE_POS[id];
+    return `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`;
+  }).join(" ");
 
   return (
     <div className="relative h-[55vh] min-h-[420px] w-full overflow-hidden rounded-3xl border border-border/60 bg-card shadow-[var(--shadow-soft)]">
@@ -94,16 +102,14 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
 
             <rect width={VIEW_W} height={VIEW_H} fill="url(#terrain)" />
 
-            {/* Stylised terrain dunes */}
             <g opacity="0.35" fill="none" stroke="var(--color-muted-foreground)" strokeWidth="1">
               <path d="M0 420 Q 200 360 420 410 T 1000 380" />
               <path d="M0 470 Q 250 420 500 460 T 1000 440" />
               <path d="M0 520 Q 300 480 600 510 T 1000 500" />
             </g>
 
-            {/* Faint base dotted path linking all sites */}
             <path
-              d={`M ${SITE_POS.haram.x} ${SITE_POS.haram.y} L ${SITE_POS.mina.x} ${SITE_POS.mina.y} L ${SITE_POS.muzdalifah.x} ${SITE_POS.muzdalifah.y} L ${SITE_POS.arafat.x} ${SITE_POS.arafat.y}`}
+              d={baseRouteD}
               fill="none"
               stroke="var(--color-muted-foreground)"
               strokeWidth="1.5"
@@ -112,7 +118,35 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
               opacity="0.55"
             />
 
-            {/* Animated highlighted route for the active day */}
+            {ROUTE_SEGMENTS.map((seg) => (
+              <g
+                key={`${seg.from}-${seg.to}`}
+                transform={`translate(${seg.midX} ${seg.midY}) rotate(${seg.angleDeg})`}
+              >
+                <rect
+                  x={-22}
+                  y={-10}
+                  width={44}
+                  height={18}
+                  rx={9}
+                  fill="var(--color-card)"
+                  stroke="var(--color-border)"
+                  opacity={0.92}
+                />
+                <text
+                  textAnchor="middle"
+                  y={4}
+                  fontSize={10}
+                  fontWeight={600}
+                  letterSpacing="0.06em"
+                  fill="var(--color-muted-foreground)"
+                  style={{ fontFamily: "var(--font-sans)" }}
+                >
+                  {seg.label}
+                </text>
+              </g>
+            ))}
+
             <AnimatePresence mode="wait">
               {routeD && (
                 <motion.path
@@ -132,8 +166,16 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
               )}
             </AnimatePresence>
 
-            {/* Sites */}
-            {(Object.keys(SITE_POS) as LocationId[]).map((id) => {
+            {/* North-up compass (projection uses geographic north = screen up) */}
+            <g transform="translate(56 56)" aria-hidden="true">
+              <circle r={18} fill="var(--color-card)" stroke="var(--color-border)" opacity={0.95} />
+              <path d="M0 -11 L4 4 L0 1 L-4 4 Z" fill="var(--color-primary)" />
+              <text y={14} textAnchor="middle" fontSize={9} fontWeight={700} fill="var(--color-muted-foreground)">
+                N
+              </text>
+            </g>
+
+            {ROUTE_ORDER.map((id) => {
               const p = SITE_POS[id];
               const loc = locations[id];
               const isActive = id === focusSite;
@@ -145,20 +187,16 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
                   className="cursor-pointer"
                   onClick={() => onSelectSite(id)}
                 >
-                  {/* glow */}
                   {(isActive || inFocus) && (
                     <circle r={isActive ? 46 : 30} fill="url(#siteGlow)" filter="url(#soft)" />
                   )}
-                  {/* outer ring */}
                   <circle
                     r={isActive ? 16 : 12}
                     fill="var(--color-card)"
                     stroke={isActive ? "var(--color-gold)" : "var(--color-primary)"}
                     strokeWidth={isActive ? 3 : 2}
                   />
-                  {/* inner dot */}
                   <circle r={isActive ? 6 : 5} fill={isActive ? "var(--color-gold)" : "var(--color-primary)"} />
-                  {/* labels */}
                   <g transform="translate(0 -26)">
                     <rect
                       x={-loc.name.length * 4.2 - 10}
@@ -196,9 +234,8 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
         </TransformComponent>
       </TransformWrapper>
 
-      {/* Caption overlay */}
       <div className="pointer-events-none absolute bottom-3 left-4 right-4 flex items-end justify-between gap-3 text-xs text-muted-foreground">
-        <span>Tap a site to focus · pinch or scroll to zoom</span>
+        <span>Distances approximate · tap a site for landmarks & camp pin</span>
         <span className="hidden font-arabic text-base sm:inline">{locations[focusSite].arabicName}</span>
       </div>
     </div>
