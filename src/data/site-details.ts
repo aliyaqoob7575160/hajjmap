@@ -29,12 +29,21 @@ export const siteDetails: Record<LocationId, SiteDetail> = {
   haram: {
     siteId: "haram",
     boundaryLabel: "Masjid al-Haram precinct (approx.)",
+    // Irregular mosque footprint: original Ottoman core around the Kaaba plus
+    // the King Fahd (west) and King Abdullah (north) expansions.
     boundary: [
-      [21.4280, 39.8210],
-      [21.4280, 39.8310],
-      [21.4170, 39.8310],
-      [21.4170, 39.8210],
-      [21.4280, 39.8210],
+      [21.4258, 39.8240],
+      [21.4262, 39.8265],
+      [21.4255, 39.8288],
+      [21.4240, 39.8300],
+      [21.4220, 39.8302],
+      [21.4205, 39.8292],
+      [21.4198, 39.8275],
+      [21.4200, 39.8255],
+      [21.4210, 39.8238],
+      [21.4225, 39.8228],
+      [21.4245, 39.8228],
+      [21.4258, 39.8240],
     ],
     landmarks: [
       {
