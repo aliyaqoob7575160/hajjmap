@@ -138,12 +138,22 @@ export const siteDetails: Record<LocationId, SiteDetail> = {
   muzdalifah: {
     siteId: "muzdalifah",
     boundaryLabel: "Muzdalifah plain (approx.)",
+    // Lens-shaped plain between Wadi Muhassir (west, toward Mina) and the
+    // Ma'zamayn pass (east, toward Arafat); wider in the middle.
     boundary: [
-      [21.3920, 39.9200],
-      [21.3920, 39.9520],
-      [21.3720, 39.9520],
-      [21.3720, 39.9200],
-      [21.3920, 39.9200],
+      [21.3885, 39.9180],
+      [21.3915, 39.9255],
+      [21.3925, 39.9340],
+      [21.3915, 39.9430],
+      [21.3880, 39.9510],
+      [21.3820, 39.9545],
+      [21.3760, 39.9520],
+      [21.3725, 39.9445],
+      [21.3720, 39.9360],
+      [21.3735, 39.9275],
+      [21.3775, 39.9210],
+      [21.3830, 39.9180],
+      [21.3885, 39.9180],
     ],
     landmarks: [
       {
