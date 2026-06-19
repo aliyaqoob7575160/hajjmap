@@ -150,6 +150,7 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
         </div>
       )}
 
+      <div className={activeSite ? "grid gap-3 lg:grid-cols-[1fr_240px]" : ""}>
       <div className="relative h-[55vh] min-h-[420px] w-full overflow-hidden rounded-3xl border border-border/60 bg-card shadow-[var(--shadow-soft)]">
         <div className="arabesque-bg pointer-events-none absolute inset-0" />
 
