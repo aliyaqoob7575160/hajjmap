@@ -219,39 +219,37 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
                 opacity="0.55"
               />
 
-              <AnimatePresence mode="wait">
-                {routeD && (() => {
-                  const looped = day.camera.focus.length === 2;
-                  return (
-                    <motion.path
-                      key={`${day.id}-${day.camera.focus.join("-")}`}
-                      d={routeD}
-                      fill="none"
-                      stroke="var(--color-gold)"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      initial={reduced ? { opacity: 0 } : { pathLength: 0, opacity: 1 }}
-                      animate={
-                        reduced
-                          ? { opacity: 1 }
-                          : looped
-                            ? { pathLength: [0, 1], opacity: [0.35, 1, 1] }
-                            : { pathLength: 1, opacity: 1 }
-                      }
-                      exit={{ opacity: 0 }}
-                      transition={
-                        reduced
-                          ? { duration: 0.3 }
-                          : looped
-                            ? { duration: 2.4, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.6, times: [0, 0.85, 1] }
-                            : { duration: 1.1, ease: "easeInOut" }
-                      }
-                      style={{ filter: "drop-shadow(0 0 6px color-mix(in oklab, var(--color-gold) 55%, transparent))" }}
-                    />
-                  );
-                })()}
-              </AnimatePresence>
+              {routeD && (() => {
+                const looped = day.camera.focus.length === 2;
+                return (
+                  <motion.path
+                    key={`${day.id}-${day.camera.focus.join("-")}`}
+                    d={routeD}
+                    fill="none"
+                    stroke="var(--color-gold)"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    initial={reduced ? { opacity: 0 } : { pathLength: 0, opacity: 1 }}
+                    animate={
+                      reduced
+                        ? { opacity: 1 }
+                        : looped
+                          ? { pathLength: [0, 1], opacity: [0.35, 1, 1] }
+                          : { pathLength: 1, opacity: 1 }
+                    }
+                    transition={
+                      reduced
+                        ? { duration: 0.3 }
+                        : looped
+                          ? { duration: 2.4, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.6, times: [0, 0.85, 1] }
+                          : { duration: 1.1, ease: "easeInOut" }
+                    }
+                    style={{ filter: "drop-shadow(0 0 6px color-mix(in oklab, var(--color-gold) 55%, transparent))" }}
+                  />
+                );
+              })()}
+
 
 
               {ROUTE_SEGMENTS.map((seg) => (
