@@ -142,6 +142,35 @@ function Index() {
               </div>
             )}
 
+            {baseDay.id === "13" && (
+              <div className="mb-3 flex flex-wrap gap-1.5 rounded-full border border-border/70 bg-card p-1 text-xs font-semibold sm:text-sm">
+                {([
+                  { id: "all", label: "Full Day" },
+                  { id: "13.1", label: "13.1 · Final Stoning at Mina" },
+                  { id: "13.2", label: "13.2 · Tawaf al-Wada at the Haram" },
+                ] as const).map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      setPhase13(p.id);
+                      if (p.id === "13.1") setActiveSite("mina");
+                      else if (p.id === "13.2") setActiveSite("haram");
+                      else setActiveSite(null);
+                    }}
+                    className={
+                      "rounded-full px-3 py-1.5 transition-colors " +
+                      (phase13 === p.id
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground")
+                    }
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
             <section aria-label="Map">
               <HajjMap day={day} activeSite={activeSite} onSelectSite={setActiveSite} routeOverride={routeOverride} />
             </section>
