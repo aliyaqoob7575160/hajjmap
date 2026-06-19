@@ -40,21 +40,28 @@ function Index() {
   const [umrahStepId, setUmrahStepId] = useState<string>(umrahSteps[0].id);
   const [openDua, setOpenDua] = useState<string | null>(null);
   const [phase9, setPhase9] = useState<"all" | "9.1" | "9.2">("all");
+  const [phase13, setPhase13] = useState<"all" | "13.1" | "13.2">("all");
 
   const baseDay = days.find((d) => d.id === dayId) ?? days[1];
   const day = useMemo(() => {
-    if (baseDay.id !== "9" || phase9 === "all") return baseDay;
-    if (phase9 === "9.1") {
+    if (baseDay.id === "9" && phase9 !== "all") {
+      if (phase9 === "9.1") {
+        return {
+          ...baseDay,
+          events: baseDay.events.filter((e) => ["9-1", "9-2", "9-3"].includes(e.id)),
+        };
+      }
       return {
         ...baseDay,
-        events: baseDay.events.filter((e) => ["9-1", "9-2", "9-3"].includes(e.id)),
+        events: baseDay.events.filter((e) => ["9-4", "9-5", "9-6", "9-7"].includes(e.id)),
       };
     }
-    return {
-      ...baseDay,
-      events: baseDay.events.filter((e) => e.id === "9-4"),
-    };
-  }, [baseDay, phase9]);
+    if (baseDay.id === "13" && phase13 !== "all") {
+      const keep = phase13 === "13.1" ? "13-1" : "13-2";
+      return { ...baseDay, events: baseDay.events.filter((e) => e.id === keep) };
+    }
+    return baseDay;
+  }, [baseDay, phase9, phase13]);
   const routeOverride: LocationId[] | undefined =
     baseDay.id === "9" && phase9 === "9.1"
       ? ["mina", "arafat"]
@@ -70,8 +77,14 @@ function Index() {
       return;
     }
     setDayId(id);
-    setActiveSite(null);
     setPhase9("all");
+    setPhase13("all");
+    // Auto-zoom into the most relevant site for stoning days.
+    if (id === "11" || id === "12") {
+      setActiveSite("mina");
+    } else {
+      setActiveSite(null);
+    }
   };
 
 
