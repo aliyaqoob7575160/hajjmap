@@ -35,7 +35,7 @@ function Index() {
   const { theme, toggle } = useTheme();
   const reduced = usePrefersReducedMotion();
   const [journey, setJourney] = useState<JourneyMode>("hajj");
-  const [dayId, setDayId] = useState<string>("9a");
+  const [dayId, setDayId] = useState<string>("9");
   const [activeSite, setActiveSite] = useState<LocationId | null>(null);
   const [umrahStepId, setUmrahStepId] = useState<string>(umrahSteps[0].id);
   const [openDua, setOpenDua] = useState<string | null>(null);
