@@ -70,7 +70,7 @@ function zoomToBounds(
   const baseScale = Math.min(sx, sy);
   const scaleX = rect.width / (bounds.width * baseScale);
   const scaleY = rect.height / (bounds.height * baseScale);
-  const targetScale = Math.min(scaleX, scaleY, maxScale) * 0.7;
+  const targetScale = Math.min(scaleX, scaleY, maxScale) * 0.95;
   zoomToPoint(ref, bounds.cx, bounds.cy, targetScale, reduced, 700);
 }
 
