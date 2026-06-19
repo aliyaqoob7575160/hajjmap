@@ -73,12 +73,24 @@ export const siteDetails: Record<LocationId, SiteDetail> = {
   mina: {
     siteId: "mina",
     boundaryLabel: "Mina valley (approx.)",
+    // Narrow valley running roughly W→E between Jabal ranges, pinched in the
+    // middle near the Jamarat and widening east toward Wadi Muhassir.
     boundary: [
-      [21.4220, 39.8680],
-      [21.4220, 39.9050],
-      [21.4020, 39.9050],
-      [21.4020, 39.8680],
-      [21.4220, 39.8680],
+      [21.4188, 39.8745],
+      [21.4205, 39.8780],
+      [21.4215, 39.8830],
+      [21.4210, 39.8880],
+      [21.4198, 39.8930],
+      [21.4188, 39.8985],
+      [21.4170, 39.9040],
+      [21.4115, 39.9055],
+      [21.4060, 39.9030],
+      [21.4040, 39.8975],
+      [21.4055, 39.8915],
+      [21.4080, 39.8860],
+      [21.4110, 39.8810],
+      [21.4145, 39.8770],
+      [21.4188, 39.8745],
     ],
     landmarks: [
       {
