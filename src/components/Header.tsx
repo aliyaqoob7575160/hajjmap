@@ -63,22 +63,12 @@ export function Header({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {days.map((d) => {
-                  const label =
-                    d.id === "8"
-                      ? "Before"
-                      : d.id === "9a"
-                        ? "9 · Before Maghrib"
-                        : d.id === "9b"
-                          ? "9 · After Maghrib"
-                          : d.id;
-                  return (
-                    <SelectItem key={d.id} value={d.id}>
-                      <span className="font-medium">{label}</span>
-                      <span className="text-muted-foreground"> — {d.name}</span>
-                    </SelectItem>
-                  );
-                })}
+                {days.map((d) => (
+                  <SelectItem key={d.id} value={d.id}>
+                    <span className="font-medium">{d.id === "8" ? "Before" : d.id}</span>
+                    <span className="text-muted-foreground"> — {d.name}</span>
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           )}
