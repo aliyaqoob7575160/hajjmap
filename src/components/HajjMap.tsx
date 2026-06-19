@@ -195,35 +195,6 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
                 opacity="0.55"
               />
 
-              {ROUTE_SEGMENTS.map((seg) => (
-                <g
-                  key={`${seg.from}-${seg.to}`}
-                  transform={`translate(${seg.midX} ${seg.midY}) rotate(${seg.angleDeg})`}
-                >
-                  <rect
-                    x={-22}
-                    y={-10}
-                    width={44}
-                    height={18}
-                    rx={9}
-                    fill="var(--color-card)"
-                    stroke="var(--color-border)"
-                    opacity={0.92}
-                  />
-                  <text
-                    textAnchor="middle"
-                    y={4}
-                    fontSize={10}
-                    fontWeight={600}
-                    letterSpacing="0.06em"
-                    fill="var(--color-muted-foreground)"
-                    style={{ fontFamily: "var(--font-sans)" }}
-                  >
-                    {seg.label}
-                  </text>
-                </g>
-              ))}
-
               <AnimatePresence mode="wait">
                 {routeD && (
                   <motion.path
@@ -242,6 +213,37 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
                   />
                 )}
               </AnimatePresence>
+
+              {ROUTE_SEGMENTS.map((seg) => (
+                <g
+                  key={`${seg.from}-${seg.to}`}
+                  transform={`translate(${seg.midX} ${seg.midY}) rotate(${seg.angleDeg})`}
+                >
+                  <rect
+                    x={-22}
+                    y={-10}
+                    width={44}
+                    height={18}
+                    rx={9}
+                    fill="var(--color-card)"
+                    stroke="var(--color-border)"
+                    opacity={0.98}
+                  />
+                  <text
+                    textAnchor="middle"
+                    y={4}
+                    fontSize={10}
+                    fontWeight={600}
+                    letterSpacing="0.06em"
+                    fill="var(--color-muted-foreground)"
+                    style={{ fontFamily: "var(--font-sans)" }}
+                    transform={seg.angleDeg > 90 || seg.angleDeg < -90 ? "rotate(180)" : undefined}
+                  >
+                    {seg.label}
+                  </text>
+                </g>
+              ))}
+
 
               {/* Overview tap zones — dashed boxes around each site (visible when not zoomed) */}
               {!activeSite &&
