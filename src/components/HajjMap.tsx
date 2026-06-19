@@ -70,7 +70,7 @@ function zoomToBounds(
   const baseScale = Math.min(sx, sy);
   const scaleX = rect.width / (bounds.width * baseScale);
   const scaleY = rect.height / (bounds.height * baseScale);
-  const targetScale = Math.min(scaleX, scaleY, maxScale) * 0.7;
+  const targetScale = Math.min(scaleX, scaleY, maxScale) * 0.95;
   zoomToPoint(ref, bounds.cx, bounds.cy, targetScale, reduced, 700);
 }
 
@@ -87,9 +87,17 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
     setSelectedLandmark(null);
   }, [activeSite]);
 
-  // Smooth zoom: site detail → fit bounds; overview → day focus or full route
+  // Smooth zoom: landmark → tight zoom; site detail → fit bounds; overview → day focus
   useEffect(() => {
     if (!ref.current) return;
+    if (activeSite && selectedLandmark && zoomedDetail) {
+      const lm = zoomedDetail.landmarks.find((l) => l.id === selectedLandmark);
+      if (lm) {
+        const p = projectCoords(lm.coords);
+        zoomToPoint(ref.current, p.x, p.y, 11, reduced, 600);
+        return;
+      }
+    }
     if (activeSite) {
       const bounds = getSiteZoomBounds(activeSite, project);
       zoomToBounds(ref.current, bounds, reduced);
@@ -97,7 +105,8 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
     }
     const p = SITE_POS[focusSite];
     zoomToPoint(ref.current, p.x, p.y, 1.55, reduced);
-  }, [activeSite, focusSite, reduced]);
+  }, [activeSite, focusSite, reduced, selectedLandmark, zoomedDetail]);
+
 
   const routeD = useMemo(() => {
     const pts = day.camera.focus.map((id) => SITE_POS[id]);
@@ -141,6 +150,7 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
         </div>
       )}
 
+      <div className={activeSite ? "grid gap-3 lg:grid-cols-[1fr_240px]" : ""}>
       <div className="relative h-[55vh] min-h-[420px] w-full overflow-hidden rounded-3xl border border-border/60 bg-card shadow-[var(--shadow-soft)]">
         <div className="arabesque-bg pointer-events-none absolute inset-0" />
 
@@ -396,7 +406,52 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
             {locations[activeSite ?? focusSite].arabicName}
           </span>
         </div>
+        </div>
+
+        {activeSite && zoomedDetail && (
+          <aside className="rounded-3xl border border-border/60 bg-card p-3 shadow-[var(--shadow-soft)] lg:max-h-[55vh] lg:overflow-y-auto">
+            <p className="px-1 pb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-gold">
+              Landmarks
+            </p>
+            <ul className="space-y-1">
+              {zoomedDetail.landmarks.map((lm) => {
+                const selected = selectedLandmark === lm.id;
+                return (
+                  <li key={lm.id}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedLandmark(selected ? null : lm.id)}
+                      className={`w-full rounded-xl border px-3 py-2 text-left transition ${
+                        selected
+                          ? "border-gold bg-gold/10"
+                          : "border-transparent hover:border-border hover:bg-secondary/40"
+                      }`}
+                    >
+                      <p className="text-sm font-semibold leading-tight">{lm.name}</p>
+                      <p className="font-arabic text-base leading-tight text-muted-foreground">
+                        {lm.arabicName}
+                      </p>
+                      <p className="mt-1 text-xs leading-snug text-muted-foreground">{lm.blurb}</p>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+            {selectedLandmark && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="mt-2 w-full rounded-full"
+                onClick={() => setSelectedLandmark(null)}
+              >
+                Fit boundary
+              </Button>
+            )}
+          </aside>
+        )}
       </div>
+
 
       {activeSite && selectedLandmark && zoomedDetail && (
         <div className="rounded-2xl border border-border/70 bg-card p-4 text-sm shadow-[var(--shadow-soft)]">
