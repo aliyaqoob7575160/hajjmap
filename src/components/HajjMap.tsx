@@ -31,7 +31,10 @@ interface HajjMapProps {
   day: HajjDay;
   activeSite: LocationId | null;
   onSelectSite: (id: LocationId | null) => void;
+  /** Override the animated highlight route (e.g. day-9 phases). */
+  routeOverride?: LocationId[];
 }
+
 
 function zoomToPoint(
   ref: ReactZoomPanPinchRef,
