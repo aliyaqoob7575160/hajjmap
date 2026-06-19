@@ -65,7 +65,7 @@ export function Header({
               <SelectContent>
                 {days.map((d) => (
                   <SelectItem key={d.id} value={d.id}>
-                    <span className="font-medium">{d.id}</span>
+                    <span className="font-medium">{d.id === "8" ? "Before" : d.id}</span>
                     <span className="text-muted-foreground"> — {d.name}</span>
                   </SelectItem>
                 ))}
