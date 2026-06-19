@@ -6,6 +6,7 @@ import { locations, type HajjDay, type LocationId } from "@/data/hajj";
 import { getSiteDetail } from "@/data/site-details";
 import {
   computeSitePositions,
+  formatDistanceKm,
   getSiteOverviewZone,
   getSiteZoomBounds,
   ROUTE_ORDER,
