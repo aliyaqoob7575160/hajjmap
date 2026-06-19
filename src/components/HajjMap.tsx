@@ -80,7 +80,7 @@ function zoomToBounds(
 }
 
 
-export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
+export function HajjMap({ day, activeSite, onSelectSite, routeOverride }: HajjMapProps) {
   const ref = useRef<ReactZoomPanPinchRef | null>(null);
   const reduced = usePrefersReducedMotion();
   const [selectedLandmark, setSelectedLandmark] = useState<string | null>(null);
