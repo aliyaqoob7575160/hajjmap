@@ -94,9 +94,37 @@ function Index() {
           <>
             <BeforeHajjUmrahCard onOpenUmrah={openUmrahGuide} />
 
+            {baseDay.id === "9" && (
+              <div className="mb-3 flex flex-wrap gap-1.5 rounded-full border border-border/70 bg-card p-1 text-xs font-semibold sm:text-sm">
+                {([
+                  { id: "all", label: "Full Day" },
+                  { id: "9.1", label: "9.1 · Arafat Journey — Before Maghrib" },
+                  { id: "9.2", label: "9.2 · Muzdalifah Journey — After Maghrib" },
+                ] as const).map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      setPhase9(p.id);
+                      setActiveSite(null);
+                    }}
+                    className={
+                      "rounded-full px-3 py-1.5 transition-colors " +
+                      (phase9 === p.id
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground")
+                    }
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
             <section aria-label="Map">
               <HajjMap day={day} activeSite={activeSite} onSelectSite={setActiveSite} />
             </section>
+
 
             <AnimatePresence mode="wait">
               <motion.section
