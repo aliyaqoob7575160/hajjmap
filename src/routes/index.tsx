@@ -39,14 +39,32 @@ function Index() {
   const [activeSite, setActiveSite] = useState<LocationId | null>(null);
   const [umrahStepId, setUmrahStepId] = useState<string>(umrahSteps[0].id);
   const [openDua, setOpenDua] = useState<string | null>(null);
+  const [phase9, setPhase9] = useState<"all" | "9.1" | "9.2">("all");
 
-  const day = days.find((d) => d.id === dayId) ?? days[1];
+  const baseDay = days.find((d) => d.id === dayId) ?? days[1];
+  const day = useMemo(() => {
+    if (baseDay.id !== "9" || phase9 === "all") return baseDay;
+    if (phase9 === "9.1") {
+      return {
+        ...baseDay,
+        camera: { focus: ["mina", "arafat"] as LocationId[], primary: "arafat" as LocationId },
+        events: baseDay.events.filter((e) => ["9-1", "9-2", "9-3"].includes(e.id)),
+      };
+    }
+    return {
+      ...baseDay,
+      camera: { focus: ["arafat", "muzdalifah"] as LocationId[], primary: "muzdalifah" as LocationId },
+      events: baseDay.events.filter((e) => e.id === "9-4"),
+    };
+  }, [baseDay, phase9]);
   const umrahStep = umrahSteps.find((s) => s.id === umrahStepId) ?? umrahSteps[0];
 
   const handleDayChange = (id: string) => {
     setDayId(id);
     setActiveSite(null);
+    setPhase9("all");
   };
+
 
   const handleJourneyChange = (mode: JourneyMode) => {
     setJourney(mode);
