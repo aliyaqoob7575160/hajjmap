@@ -5,7 +5,7 @@ import { Header } from "@/components/Header";
 import { HajjMap } from "@/components/HajjMap";
 import { Timeline } from "@/components/Timeline";
 import { DuaSheet } from "@/components/DuaSheet";
-import { BeforeHajjUmrahCard } from "@/components/BeforeHajjUmrahCard";
+
 import { UmrahTimeline } from "@/components/UmrahTimeline";
 import { SiteDetailMap } from "@/components/SiteDetailMap";
 import { days, type LocationId } from "@/data/hajj";
@@ -65,6 +65,10 @@ function Index() {
   const umrahStep = umrahSteps.find((s) => s.id === umrahStepId) ?? umrahSteps[0];
 
   const handleDayChange = (id: string) => {
+    if (id === "before") {
+      openUmrahGuide();
+      return;
+    }
     setDayId(id);
     setActiveSite(null);
     setPhase9("all");
@@ -97,7 +101,6 @@ function Index() {
       <main className="mx-auto max-w-7xl px-4 pb-24 pt-6 sm:px-6 sm:pt-10">
         {journey === "hajj" ? (
           <>
-            <BeforeHajjUmrahCard onOpenUmrah={openUmrahGuide} />
 
             {baseDay.id === "9" && (
               <div className="mb-3 flex flex-wrap gap-1.5 rounded-full border border-border/70 bg-card p-1 text-xs font-semibold sm:text-sm">

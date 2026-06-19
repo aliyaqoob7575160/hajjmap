@@ -59,13 +59,17 @@ export function Header({
 
           {journey === "hajj" && (
             <Select value={dayId} onValueChange={onDayChange}>
-              <SelectTrigger className="h-10 w-[170px] rounded-full border-border/80 bg-card sm:w-[230px]">
+              <SelectTrigger className="h-10 w-[170px] rounded-full border-border/80 bg-card sm:w-[260px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="before">
+                  <span className="font-medium">Before</span>
+                  <span className="text-muted-foreground"> — Perform Umrah (Tamattu)</span>
+                </SelectItem>
                 {days.map((d) => (
                   <SelectItem key={d.id} value={d.id}>
-                    <span className="font-medium">{d.id === "8" ? "Before" : d.id}</span>
+                    <span className="font-medium">{d.id}</span>
                     <span className="text-muted-foreground"> — {d.name}</span>
                   </SelectItem>
                 ))}
