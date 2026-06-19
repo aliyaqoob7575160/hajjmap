@@ -73,12 +73,24 @@ export const siteDetails: Record<LocationId, SiteDetail> = {
   mina: {
     siteId: "mina",
     boundaryLabel: "Mina valley (approx.)",
+    // Narrow valley running roughly W→E between Jabal ranges, pinched in the
+    // middle near the Jamarat and widening east toward Wadi Muhassir.
     boundary: [
-      [21.4220, 39.8680],
-      [21.4220, 39.9050],
-      [21.4020, 39.9050],
-      [21.4020, 39.8680],
-      [21.4220, 39.8680],
+      [21.4188, 39.8745],
+      [21.4205, 39.8780],
+      [21.4215, 39.8830],
+      [21.4210, 39.8880],
+      [21.4198, 39.8930],
+      [21.4188, 39.8985],
+      [21.4170, 39.9040],
+      [21.4115, 39.9055],
+      [21.4060, 39.9030],
+      [21.4040, 39.8975],
+      [21.4055, 39.8915],
+      [21.4080, 39.8860],
+      [21.4110, 39.8810],
+      [21.4145, 39.8770],
+      [21.4188, 39.8745],
     ],
     landmarks: [
       {
@@ -126,12 +138,22 @@ export const siteDetails: Record<LocationId, SiteDetail> = {
   muzdalifah: {
     siteId: "muzdalifah",
     boundaryLabel: "Muzdalifah plain (approx.)",
+    // Lens-shaped plain between Wadi Muhassir (west, toward Mina) and the
+    // Ma'zamayn pass (east, toward Arafat); wider in the middle.
     boundary: [
-      [21.3920, 39.9200],
-      [21.3920, 39.9520],
-      [21.3720, 39.9520],
-      [21.3720, 39.9200],
-      [21.3920, 39.9200],
+      [21.3885, 39.9180],
+      [21.3915, 39.9255],
+      [21.3925, 39.9340],
+      [21.3915, 39.9430],
+      [21.3880, 39.9510],
+      [21.3820, 39.9545],
+      [21.3760, 39.9520],
+      [21.3725, 39.9445],
+      [21.3720, 39.9360],
+      [21.3735, 39.9275],
+      [21.3775, 39.9210],
+      [21.3830, 39.9180],
+      [21.3885, 39.9180],
     ],
     landmarks: [
       {
