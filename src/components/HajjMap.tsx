@@ -60,7 +60,7 @@ function zoomToBounds(
   ref: ReactZoomPanPinchRef,
   bounds: MapBounds,
   reduced: boolean,
-  maxScale = 5.5,
+  maxScale = 12,
 ) {
   const containerEl = (ref.instance as { wrapperComponent?: HTMLElement }).wrapperComponent;
   if (!containerEl) return;
@@ -70,9 +70,10 @@ function zoomToBounds(
   const baseScale = Math.min(sx, sy);
   const scaleX = rect.width / (bounds.width * baseScale);
   const scaleY = rect.height / (bounds.height * baseScale);
-  const targetScale = Math.min(scaleX, scaleY, maxScale) * 0.88;
+  const targetScale = Math.min(scaleX, scaleY, maxScale) * 0.7;
   zoomToPoint(ref, bounds.cx, bounds.cy, targetScale, reduced, 700);
 }
+
 
 export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
   const ref = useRef<ReactZoomPanPinchRef | null>(null);
@@ -147,7 +148,7 @@ export function HajjMap({ day, activeSite, onSelectSite }: HajjMapProps) {
           ref={ref}
           initialScale={1}
           minScale={0.8}
-          maxScale={6}
+          maxScale={14}
           centerOnInit
           wheel={{ step: 0.12 }}
           doubleClick={{ step: 0.7 }}
