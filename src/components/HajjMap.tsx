@@ -242,10 +242,10 @@ export function HajjMap({ day, activeSite, onSelectSite, routeOverride }: HajjMa
               />
 
               {routeD && (() => {
-                const looped = day.camera.focus.length === 2;
+                const looped = highlightFocus.length === 2;
                 return (
                   <motion.path
-                    key={`${day.id}-${day.camera.focus.join("-")}`}
+                    key={`${day.id}-${highlightFocus.join("-")}`}
                     d={routeD}
                     fill="none"
                     stroke="var(--color-gold)"
