@@ -65,6 +65,10 @@ function Index() {
   const umrahStep = umrahSteps.find((s) => s.id === umrahStepId) ?? umrahSteps[0];
 
   const handleDayChange = (id: string) => {
+    if (id === "before") {
+      openUmrahGuide();
+      return;
+    }
     setDayId(id);
     setActiveSite(null);
     setPhase9("all");
