@@ -61,11 +61,17 @@ function DuasPage() {
     const q = query.trim().toLowerCase();
     if (!q) return asmaUlHusna;
     return asmaUlHusna.filter(
-      (a) =>
-        a.transliteration.toLowerCase().includes(q) ||
-        a.meaning.toLowerCase().includes(q),
+      (g) =>
+        g.invocation.toLowerCase().includes(q) ||
+        g.dua.toLowerCase().includes(q) ||
+        g.names.some(
+          (n) =>
+            n.transliteration.toLowerCase().includes(q) ||
+            n.meaning.toLowerCase().includes(q),
+        ),
     );
   }, [query]);
+
 
   return (
     <div className="min-h-dvh bg-background">
