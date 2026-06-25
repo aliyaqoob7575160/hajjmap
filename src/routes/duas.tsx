@@ -101,10 +101,10 @@ function DuasPage() {
     [pins, savePins, pinKeyFor],
   );
 
-  const jumpToPin = useCallback(() => {
-    const id = pins[pinKeyFor()];
-    if (!id) return;
-    const el = document.getElementById(`dua-card-${id}`);
+  const jumpToPin = useCallback((id?: string) => {
+    const target = id ?? pins[pinKeyFor()];
+    if (!target) return;
+    const el = document.getElementById(`dua-card-${target}`);
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "center" });
       el.classList.add("ring-2", "ring-gold");
@@ -144,6 +144,18 @@ function DuasPage() {
   }, [query]);
 
   const pinnedId = pins[pinKeyFor()];
+
+  // All pins relevant to the current view. For prophets, show every pinned prophet
+  // chip since they're all visible at once. For sub-filtered tabs, only the active scope.
+  const visiblePins = useMemo<{ id: string; label: string }[]>(() => {
+    if (tab === "prophets") {
+      return Object.entries(pins)
+        .filter(([k]) => k.startsWith("prophets:"))
+        .map(([k, id]) => ({ id, label: k.slice("prophets:".length) }));
+    }
+    return pinnedId ? [{ id: pinnedId, label: activeScopeLabel }] : [];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, pins, pinnedId, activeScopeLabel]);
 
   // Pin label shows the active sub-filter so users know which scope they're jumping in.
   const activeScopeLabel = useMemo(() => {
