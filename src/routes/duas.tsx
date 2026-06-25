@@ -61,11 +61,17 @@ function DuasPage() {
     const q = query.trim().toLowerCase();
     if (!q) return asmaUlHusna;
     return asmaUlHusna.filter(
-      (a) =>
-        a.transliteration.toLowerCase().includes(q) ||
-        a.meaning.toLowerCase().includes(q),
+      (g) =>
+        g.invocation.toLowerCase().includes(q) ||
+        g.dua.toLowerCase().includes(q) ||
+        g.names.some(
+          (n) =>
+            n.transliteration.toLowerCase().includes(q) ||
+            n.meaning.toLowerCase().includes(q),
+        ),
     );
   }, [query]);
+
 
   return (
     <div className="min-h-dvh bg-background">
@@ -158,29 +164,41 @@ function DuasPage() {
             )}
           </ul>
         ) : (
-          <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredAsma.map((a) => (
-              <li key={`${a.number}-${a.transliteration}`}>
-                <Card className="border border-border/70 bg-card p-4 shadow-[var(--shadow-soft)]">
+          <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+            {filteredAsma.map((g) => (
+              <li key={g.id}>
+                <Card className="h-full border border-border/70 bg-card p-5 shadow-[var(--shadow-soft)]">
                   <div className="flex items-baseline justify-between gap-3">
                     <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
-                      {a.number ? `#${a.number}` : "Bonus"}
+                      {g.id}
                     </span>
-                    {a.optional && (
-                      <Badge className="rounded-full border border-border/60 text-[10px]" variant="outline">
-                        optional
-                      </Badge>
+                    {g.timestamp && (
+                      <span className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70">
+                        {g.timestamp}
+                      </span>
                     )}
                   </div>
-                  <p dir="rtl" className="mt-2 font-arabic text-2xl leading-tight text-foreground">
-                    {a.arabic}
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-foreground">{a.transliteration}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{a.meaning}</p>
+                  <ul className="mt-3 space-y-1.5">
+                    {g.names.map((n) => (
+                      <li key={n.transliteration} className="flex items-baseline justify-between gap-3">
+                        <span className="text-sm font-semibold text-foreground">{n.transliteration}</span>
+                        <span className="text-right text-xs text-muted-foreground">{n.meaning}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="star-divider my-4" />
+                  <p className="text-sm font-semibold italic text-gold">{g.invocation}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-foreground">{g.dua}</p>
                 </Card>
               </li>
             ))}
+            {filteredAsma.length === 0 && (
+              <li className="col-span-full rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
+                No names match your search.
+              </li>
+            )}
           </ul>
+
         )}
 
         <p className="mt-10 text-center text-xs leading-relaxed text-muted-foreground">
