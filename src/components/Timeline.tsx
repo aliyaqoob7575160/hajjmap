@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { duas, locations, type HajjDay, type LocationId } from "@/data/hajj";
+import { locations, type HajjDay, type LocationId } from "@/data/hajj";
+import { getDuaTitle } from "@/lib/duas";
 import { usePrefersReducedMotion } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
 
