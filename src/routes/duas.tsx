@@ -6,7 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DuaSheet } from "@/components/DuaSheet";
-import { libraryDuas, asmaUlHusna, type LibraryDua } from "@/data/duas-library";
+import { libraryDuas as baseDuas, asmaUlHusna, type LibraryDua } from "@/data/duas-library";
+import {
+  generalDuasFromPdf,
+  generalSubCategoryLabels,
+  generalSubCategoryOrder,
+  type GeneralSubCategory,
+} from "@/data/general-duas";
 import {
   sDuas,
   sDuasByCategory,
@@ -16,18 +22,20 @@ import {
 } from "@/data/s-duas";
 import { cn } from "@/lib/utils";
 
+const libraryDuas: LibraryDua[] = [...baseDuas, ...generalDuasFromPdf];
+
 export const Route = createFileRoute("/duas")({
   head: () => ({
     meta: [
       { title: "Duas Library — Labbayk" },
       {
         name: "description",
-        content: "A library of 100 authentic supplications for Hajj, Umrah and daily life, plus the 99 Names of Allah.",
+        content: "A library of authentic supplications for Hajj, Umrah and daily life, plus the 99 Names of Allah.",
       },
       { property: "og:title", content: "Duas Library — Labbayk" },
       {
         property: "og:description",
-        content: "Browse 100 authentic Hajj, Umrah and Qur'anic duas with Arabic, transliteration, translation and sources.",
+        content: "Browse authentic Hajj, Umrah and Qur'anic duas with Arabic, transliteration, translation and sources.",
       },
     ],
   }),
@@ -49,16 +57,16 @@ const TABS: { id: Tab; label: string }[] = [
 function DuasPage() {
   const [tab, setTab] = useState<Tab>("all");
   const [sCategory, setSCategory] = useState<SDuaCategory | "all">("all");
+  const [gCategory, setGCategory] = useState<GeneralSubCategory | "all">("all");
   const [query, setQuery] = useState("");
   const [openDua, setOpenDua] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return libraryDuas.filter((d) => {
-      // Skip cross-reference stubs (no text of their own — they point to another entry)
       if (!d.arabic && !d.translation && !d.transliteration) return false;
-
-      if (tab !== "all" && tab !== "asma" && d.category !== tab) return false;
+      if (tab !== "all" && tab !== "asma" && tab !== "sduas" && d.category !== tab) return false;
+      if (tab === "general" && gCategory !== "all" && d.subCategory !== gCategory) return false;
       if (!q) return true;
       return (
         d.title.toLowerCase().includes(q) ||
@@ -67,7 +75,7 @@ function DuasPage() {
         (d.tags ?? []).some((t) => t.toLowerCase().includes(q))
       );
     });
-  }, [tab, query]);
+  }, [tab, query, gCategory]);
 
   const filteredAsma = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -83,6 +91,7 @@ function DuasPage() {
         ),
     );
   }, [query]);
+
 
 
   return (
