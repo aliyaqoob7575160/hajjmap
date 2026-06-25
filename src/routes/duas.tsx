@@ -123,7 +123,76 @@ function DuasPage() {
           ))}
         </div>
 
-        {tab !== "asma" ? (
+        {tab === "asma" ? null : tab === "prophets" ? (
+          <div className="mt-6 space-y-8">
+            {(() => {
+              const groups = new Map<string, typeof filtered>();
+              for (const d of filtered) {
+                const prophet = d.title.split(":")[0].trim();
+                if (!groups.has(prophet)) groups.set(prophet, []);
+                groups.get(prophet)!.push(d);
+              }
+              if (groups.size === 0) {
+                return (
+                  <p className="rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
+                    No duas match your search.
+                  </p>
+                );
+              }
+              return Array.from(groups.entries()).map(([prophet, items]) => (
+                <section key={prophet}>
+                  <div className="mb-3 flex items-baseline justify-between gap-3">
+                    <h2 className="text-base font-semibold tracking-tight text-foreground sm:text-lg">
+                      {prophet}
+                    </h2>
+                    <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                      {items.length} {items.length === 1 ? "dua" : "duas"}
+                    </span>
+                  </div>
+                  <ul className="grid gap-3 sm:grid-cols-2">
+                    {items.map((d) => (
+                      <li key={d.id}>
+                        <Card
+                          onClick={() => setOpenDua(d.id)}
+                          className="cursor-pointer border border-border/70 bg-card p-5 shadow-[var(--shadow-soft)] transition-all hover:border-gold/60 hover:shadow-[var(--shadow-gold)]"
+                        >
+                          <div className="flex items-baseline justify-between gap-3">
+                            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+                              {d.id}
+                            </span>
+                            {d.hajjLocation && (
+                              <Badge className="rounded-full border border-gold/40 bg-gold/10 text-[10px] text-gold-foreground" variant="outline">
+                                Hajj station
+                              </Badge>
+                            )}
+                          </div>
+                          <h3 className="mt-2 text-sm font-semibold tracking-tight sm:text-base">
+                            {d.title.split(":").slice(1).join(":").trim() || d.title}
+                          </h3>
+                          {d.arabic && (
+                            <p dir="rtl" className="mt-3 font-arabic text-xl leading-[1.9] text-foreground line-clamp-2">
+                              {d.arabic}
+                            </p>
+                          )}
+                          {d.translation && (
+                            <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-2">
+                              {d.translation}
+                            </p>
+                          )}
+                          {d.source && (
+                            <p className="mt-3 text-[11px] uppercase tracking-[0.12em] text-muted-foreground/80">
+                              {d.source}
+                            </p>
+                          )}
+                        </Card>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ));
+            })()}
+          </div>
+        ) : (
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
             {filtered.map((d) => (
               <li key={d.id}>
@@ -166,6 +235,7 @@ function DuasPage() {
               </li>
             )}
           </ul>
+
         ) : (
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
             {filteredAsma.map((g) => (
