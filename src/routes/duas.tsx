@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { ArrowLeft, Search } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ArrowLeft, Pin, PinOff, Search, CornerUpRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -54,12 +54,51 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "asma", label: "99 Names" },
 ];
 
+const PIN_STORAGE_KEY = "labbayk.duas.pins";
+
 function DuasPage() {
   const [tab, setTab] = useState<Tab>("all");
   const [sCategory, setSCategory] = useState<SDuaCategory | "all">("all");
   const [gCategory, setGCategory] = useState<GeneralSubCategory | "all">("all");
   const [query, setQuery] = useState("");
   const [openDua, setOpenDua] = useState<string | null>(null);
+  const [pins, setPins] = useState<Partial<Record<Tab, string>>>({});
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(PIN_STORAGE_KEY);
+      if (raw) setPins(JSON.parse(raw));
+    } catch {}
+  }, []);
+
+  const savePins = useCallback((next: Partial<Record<Tab, string>>) => {
+    setPins(next);
+    try {
+      localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(next));
+    } catch {}
+  }, []);
+
+  const togglePin = useCallback(
+    (id: string, e?: React.MouseEvent) => {
+      e?.stopPropagation();
+      const next = { ...pins };
+      if (next[tab] === id) delete next[tab];
+      else next[tab] = id;
+      savePins(next);
+    },
+    [pins, savePins, tab],
+  );
+
+  const jumpToPin = useCallback(() => {
+    const id = pins[tab];
+    if (!id) return;
+    const el = document.getElementById(`dua-card-${id}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("ring-2", "ring-gold");
+      setTimeout(() => el.classList.remove("ring-2", "ring-gold"), 1600);
+    }
+  }, [pins, tab]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -92,6 +131,26 @@ function DuasPage() {
     );
   }, [query]);
 
+  const pinnedId = pins[tab];
+
+  const PinButton = ({ id }: { id: string }) => (
+    <button
+      type="button"
+      onClick={(e) => togglePin(id, e)}
+      aria-label={pins[tab] === id ? "Remove pin" : "Pin this dua"}
+      className={cn(
+        "rounded-full border p-1.5 transition-colors",
+        pins[tab] === id
+          ? "border-gold bg-gold/15 text-gold"
+          : "border-border/60 bg-card text-muted-foreground hover:text-foreground",
+      )}
+    >
+      {pins[tab] === id ? <Pin className="h-3.5 w-3.5 fill-current" /> : <PinOff className="h-3.5 w-3.5" />}
+    </button>
+  );
+
+
+
 
 
   return (
@@ -123,7 +182,7 @@ function DuasPage() {
           />
         </div>
 
-        <div className="mt-5 flex flex-wrap gap-2">
+        <div className="mt-5 flex flex-wrap items-center gap-2">
           {TABS.map((t) => (
             <button
               key={t.id}
@@ -139,7 +198,19 @@ function DuasPage() {
               {t.label}
             </button>
           ))}
+          {pinnedId && (
+            <button
+              type="button"
+              onClick={jumpToPin}
+              className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-gold/60 bg-gold/10 px-3.5 py-1.5 text-xs font-semibold text-gold transition-colors hover:bg-gold/20"
+              title={`Jump to pinned ${pinnedId}`}
+            >
+              <CornerUpRight className="h-3.5 w-3.5" />
+              Jump to pin · {pinnedId}
+            </button>
+          )}
         </div>
+
 
         {tab === "asma" ? null : tab === "sduas" ? (
           <div className="mt-6 space-y-6">
@@ -186,10 +257,13 @@ function DuasPage() {
               <ul className="grid gap-3 sm:grid-cols-2">
                 {(sCategory === "all" ? sDuas : sDuasByCategory[sCategory]).map((d) => (
                   <li key={d.id}>
-                    <Card className="border border-border/70 bg-card p-5 shadow-[var(--shadow-soft)]">
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
-                        {sDuaCategoryLabels[d.category]}
-                      </span>
+                    <Card id={`dua-card-${d.id}`} className="border border-border/70 bg-card p-5 shadow-[var(--shadow-soft)] transition-shadow">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+                          {sDuaCategoryLabels[d.category]}
+                        </span>
+                        <PinButton id={d.id} />
+                      </div>
                       <h3 className="mt-2 text-base font-semibold tracking-tight sm:text-lg">{d.title}</h3>
                       {d.arabic && (
                         <p dir="rtl" className="mt-3 font-arabic text-xl leading-[1.9] text-foreground line-clamp-2">
@@ -209,6 +283,7 @@ function DuasPage() {
                     </Card>
                   </li>
                 ))}
+
               </ul>
             )}
           </div>
@@ -242,6 +317,7 @@ function DuasPage() {
                     {items.map((d) => (
                       <li key={d.id}>
                         <Card
+                          id={`dua-card-${d.id}`}
                           onClick={() => setOpenDua(d.id)}
                           className="cursor-pointer border border-border/70 bg-card p-5 shadow-[var(--shadow-soft)] transition-all hover:border-gold/60 hover:shadow-[var(--shadow-gold)] sm:p-6"
                         >
@@ -249,11 +325,14 @@ function DuasPage() {
                             <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
                               {d.id}
                             </span>
-                            {d.hajjLocation && (
-                              <Badge className="rounded-full border border-gold/40 bg-gold/10 text-[10px] text-gold-foreground" variant="outline">
-                                Hajj station
-                              </Badge>
-                            )}
+                            <div className="flex items-center gap-2">
+                              {d.hajjLocation && (
+                                <Badge className="rounded-full border border-gold/40 bg-gold/10 text-[10px] text-gold-foreground" variant="outline">
+                                  Hajj station
+                                </Badge>
+                              )}
+                              <PinButton id={d.id} />
+                            </div>
                           </div>
                           <h3 className="mt-2 text-base font-semibold tracking-tight sm:text-lg">
                             {d.title.split(":").slice(1).join(":").trim() || d.title}
@@ -276,6 +355,7 @@ function DuasPage() {
                         </Card>
                       </li>
                     ))}
+
                   </ul>
 
                 </section>
@@ -319,6 +399,7 @@ function DuasPage() {
               {filtered.map((d) => (
                 <li key={d.id}>
                   <Card
+                    id={`dua-card-${d.id}`}
                     onClick={() => setOpenDua(d.id)}
                     className="cursor-pointer border border-border/70 bg-card p-5 shadow-[var(--shadow-soft)] transition-all hover:border-gold/60 hover:shadow-[var(--shadow-gold)] sm:p-6"
                   >
@@ -326,11 +407,14 @@ function DuasPage() {
                       <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
                         {d.id} · {d.subCategory ? generalSubCategoryLabels[d.subCategory as GeneralSubCategory] ?? d.category.replace("_", " & ") : d.category.replace("_", " & ")}
                       </span>
-                      {d.hajjLocation && (
-                        <Badge className="rounded-full border border-gold/40 bg-gold/10 text-[10px] text-gold-foreground" variant="outline">
-                          Hajj station
-                        </Badge>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {d.hajjLocation && (
+                          <Badge className="rounded-full border border-gold/40 bg-gold/10 text-[10px] text-gold-foreground" variant="outline">
+                            Hajj station
+                          </Badge>
+                        )}
+                        <PinButton id={d.id} />
+                      </div>
                     </div>
                     <h3 className="mt-2 text-base font-semibold tracking-tight sm:text-lg">{d.title}</h3>
                     {d.arabic && (
@@ -356,6 +440,7 @@ function DuasPage() {
                   </Card>
                 </li>
               ))}
+
               {filtered.length === 0 && (
                 <li className="rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
                   No duas match your search.
@@ -371,16 +456,19 @@ function DuasPage() {
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
             {filteredAsma.map((g) => (
               <li key={g.id}>
-                <Card className="h-full border border-border/70 bg-card p-5 shadow-[var(--shadow-soft)]">
+                <Card id={`dua-card-${g.id}`} className="h-full border border-border/70 bg-card p-5 shadow-[var(--shadow-soft)] transition-shadow">
                   <div className="flex items-baseline justify-between gap-3">
                     <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
                       {g.id}
                     </span>
-                    {g.timestamp && (
-                      <span className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70">
-                        {g.timestamp}
-                      </span>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {g.timestamp && (
+                        <span className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70">
+                          {g.timestamp}
+                        </span>
+                      )}
+                      <PinButton id={g.id} />
+                    </div>
                   </div>
                   <ul className="mt-3 space-y-1.5">
                     {g.names.map((n) => (
@@ -396,6 +484,7 @@ function DuasPage() {
                 </Card>
               </li>
             ))}
+
             {filteredAsma.length === 0 && (
               <li className="col-span-full rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
                 No names match your search.
