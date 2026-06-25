@@ -1538,7 +1538,6 @@ export const libraryDuas: LibraryDua[] = [
     instructionOnly: false,
   },
   {
-  {
     id: "Q95",
     category: "quranic",
     title: "Surah al-Falaq — refuge from creation's evil (full)",
