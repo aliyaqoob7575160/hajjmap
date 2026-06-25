@@ -1,4 +1,4 @@
-import { BookOpen, Moon, Sun } from "lucide-react";
+import { BookOpen, Backpack, Moon, Sun } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -77,6 +77,18 @@ export function Header({
               </SelectContent>
             </Select>
           )}
+
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            aria-label="Prepare for Hajj & Umrah"
+            className="h-10 w-10 rounded-full border border-border/60"
+          >
+            <Link to="/prepare">
+              <Backpack className="h-4 w-4" />
+            </Link>
+          </Button>
 
           <Button
             asChild
