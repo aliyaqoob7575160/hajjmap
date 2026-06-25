@@ -7,6 +7,13 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DuaSheet } from "@/components/DuaSheet";
 import { libraryDuas, asmaUlHusna, type LibraryDua } from "@/data/duas-library";
+import {
+  sDuas,
+  sDuasByCategory,
+  sDuaCategoryLabels,
+  sDuaCategoryOrder,
+  type SDuaCategory,
+} from "@/data/s-duas";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/duas")({
@@ -27,7 +34,7 @@ export const Route = createFileRoute("/duas")({
   component: DuasPage,
 });
 
-type Tab = "all" | LibraryDua["category"] | "asma";
+type Tab = "all" | LibraryDua["category"] | "asma" | "sduas";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "all", label: "All" },
@@ -35,6 +42,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "quranic", label: "Qur'anic" },
   { id: "prophets", label: "Prophets" },
   { id: "general", label: "General" },
+  { id: "sduas", label: "S Duas" },
   { id: "asma", label: "99 Names" },
 ];
 
