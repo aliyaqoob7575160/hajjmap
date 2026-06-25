@@ -62,7 +62,7 @@ export function Timeline({ day, activeSite, onOpenDua }: TimelineProps) {
                       variant="outline"
                     >
                       <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-gold" />
-                      {duas[id].title}
+                      {getDuaTitle(id)}
                     </Badge>
                   ))}
                 </div>
