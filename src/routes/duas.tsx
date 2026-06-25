@@ -145,6 +145,13 @@ function DuasPage() {
 
   const pinnedId = pins[pinKeyFor()];
 
+  // Pin label shows the active sub-filter so users know which scope they're jumping in.
+  const activeScopeLabel = useMemo(() => {
+    if (tab === "general") return gCategory === "all" ? "General" : generalSubCategoryLabels[gCategory];
+    if (tab === "sduas") return sCategory === "all" ? "S Duas" : sDuaCategoryLabels[sCategory];
+    return TABS.find((t) => t.id === tab)?.label ?? "";
+  }, [tab, gCategory, sCategory]);
+
   // All pins relevant to the current view. For prophets, show every pinned prophet
   // chip since they're all visible at once. For sub-filtered tabs, only the active scope.
   const visiblePins = useMemo<{ id: string; label: string }[]>(() => {
@@ -154,15 +161,8 @@ function DuasPage() {
         .map(([k, id]) => ({ id, label: k.slice("prophets:".length) }));
     }
     return pinnedId ? [{ id: pinnedId, label: activeScopeLabel }] : [];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, pins, pinnedId, activeScopeLabel]);
 
-  // Pin label shows the active sub-filter so users know which scope they're jumping in.
-  const activeScopeLabel = useMemo(() => {
-    if (tab === "general") return gCategory === "all" ? "General" : generalSubCategoryLabels[gCategory];
-    if (tab === "sduas") return sCategory === "all" ? "S Duas" : sDuaCategoryLabels[sCategory];
-    return TABS.find((t) => t.id === tab)?.label ?? "";
-  }, [tab, gCategory, sCategory]);
 
   const PinButton = ({ id, subKey }: { id: string; subKey?: string }) => {
     const key = pinKeyFor(subKey);
@@ -235,17 +235,19 @@ function DuasPage() {
               {t.label}
             </button>
           ))}
-          {pinnedId && (
+          {visiblePins.map((p) => (
             <button
+              key={p.id}
               type="button"
-              onClick={jumpToPin}
-              className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-gold/60 bg-gold/10 px-3.5 py-1.5 text-xs font-semibold text-gold transition-colors hover:bg-gold/20"
-              title={`Jump to pinned ${pinnedId} in ${activeScopeLabel}`}
+              onClick={() => jumpToPin(p.id)}
+              className="inline-flex items-center gap-1.5 rounded-full border border-gold/60 bg-gold/10 px-3.5 py-1.5 text-xs font-semibold text-gold transition-colors hover:bg-gold/20"
+              title={`Jump to pinned ${p.id} in ${p.label}`}
             >
               <CornerUpRight className="h-3.5 w-3.5" />
-              Pin · {activeScopeLabel} · {pinnedId}
+              Pin · {p.label} · {p.id}
             </button>
-          )}
+          ))}
+
         </div>
 
 
