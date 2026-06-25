@@ -5,10 +5,10 @@ export interface LibraryDua {
   id: string;
   category: 'quranic' | 'prophets' | 'hajj_umrah' | 'general';
   title: string;
-  arabic: string;
-  transliteration: string;
-  translation: string;
-  source: string;
+  arabic: string | null;
+  transliteration: string | null;
+  translation: string | null;
+  source: string | null;
   ritual: string | null;
   locationMarker: string | null;
   note: string | null;
@@ -19,7 +19,7 @@ export interface LibraryDua {
 }
 
 export interface AsmaName {
-  number: number;
+  number: number | null;
   arabic: string;
   transliteration: string;
   meaning: string;
@@ -2328,7 +2328,7 @@ export const asmaUlHusna: AsmaName[] = [
     optional: false,
   },
   {
-    number: None,
+    number: null,
     arabic: "الصَّبُور",
     transliteration: "As-Sabur",
     meaning: "The Most Patient",
