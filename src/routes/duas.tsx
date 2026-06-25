@@ -62,7 +62,7 @@ function DuasPage() {
   const [gCategory, setGCategory] = useState<GeneralSubCategory | "all">("all");
   const [query, setQuery] = useState("");
   const [openDua, setOpenDua] = useState<string | null>(null);
-  const [pins, setPins] = useState<Partial<Record<Tab, string>>>({});
+  const [pins, setPins] = useState<Record<string, string>>({});
 
   useEffect(() => {
     try {
@@ -71,26 +71,38 @@ function DuasPage() {
     } catch {}
   }, []);
 
-  const savePins = useCallback((next: Partial<Record<Tab, string>>) => {
+  const savePins = useCallback((next: Record<string, string>) => {
     setPins(next);
     try {
       localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(next));
     } catch {}
   }, []);
 
+  // Pin key includes active sub-filter so each sub-category gets its own pin.
+  const pinKeyFor = useCallback(
+    (subKey?: string) => {
+      if (subKey) return `${tab}:${subKey}`;
+      if (tab === "general") return `general:${gCategory}`;
+      if (tab === "sduas") return `sduas:${sCategory}`;
+      return tab;
+    },
+    [tab, gCategory, sCategory],
+  );
+
   const togglePin = useCallback(
-    (id: string, e?: React.MouseEvent) => {
+    (id: string, subKey: string | undefined, e?: React.MouseEvent) => {
       e?.stopPropagation();
+      const key = pinKeyFor(subKey);
       const next = { ...pins };
-      if (next[tab] === id) delete next[tab];
-      else next[tab] = id;
+      if (next[key] === id) delete next[key];
+      else next[key] = id;
       savePins(next);
     },
-    [pins, savePins, tab],
+    [pins, savePins, pinKeyFor],
   );
 
   const jumpToPin = useCallback(() => {
-    const id = pins[tab];
+    const id = pins[pinKeyFor()];
     if (!id) return;
     const el = document.getElementById(`dua-card-${id}`);
     if (el) {
@@ -98,7 +110,7 @@ function DuasPage() {
       el.classList.add("ring-2", "ring-gold");
       setTimeout(() => el.classList.remove("ring-2", "ring-gold"), 1600);
     }
-  }, [pins, tab]);
+  }, [pins, pinKeyFor]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -131,23 +143,36 @@ function DuasPage() {
     );
   }, [query]);
 
-  const pinnedId = pins[tab];
+  const pinnedId = pins[pinKeyFor()];
 
-  const PinButton = ({ id }: { id: string }) => (
-    <button
-      type="button"
-      onClick={(e) => togglePin(id, e)}
-      aria-label={pins[tab] === id ? "Remove pin" : "Pin this dua"}
-      className={cn(
-        "rounded-full border p-1.5 transition-colors",
-        pins[tab] === id
-          ? "border-gold bg-gold/15 text-gold"
-          : "border-border/60 bg-card text-muted-foreground hover:text-foreground",
-      )}
-    >
-      {pins[tab] === id ? <Pin className="h-3.5 w-3.5 fill-current" /> : <PinOff className="h-3.5 w-3.5" />}
-    </button>
-  );
+  // Pin label shows the active sub-filter so users know which scope they're jumping in.
+  const activeScopeLabel = useMemo(() => {
+    if (tab === "general") return gCategory === "all" ? "General" : generalSubCategoryLabels[gCategory];
+    if (tab === "sduas") return sCategory === "all" ? "S Duas" : sDuaCategoryLabels[sCategory];
+    return TABS.find((t) => t.id === tab)?.label ?? "";
+  }, [tab, gCategory, sCategory]);
+
+  const PinButton = ({ id, subKey }: { id: string; subKey?: string }) => {
+    const key = pinKeyFor(subKey);
+    const active = pins[key] === id;
+    return (
+      <button
+        type="button"
+        onClick={(e) => togglePin(id, subKey, e)}
+        aria-label={active ? "Remove pin" : "Pin this dua"}
+        className={cn(
+          "rounded-full border p-1.5 transition-colors",
+          active
+            ? "border-gold bg-gold/15 text-gold"
+            : "border-border/60 bg-card text-muted-foreground hover:text-foreground",
+        )}
+      >
+        {active ? <Pin className="h-3.5 w-3.5 fill-current" /> : <PinOff className="h-3.5 w-3.5" />}
+      </button>
+    );
+  };
+
+
 
 
 
