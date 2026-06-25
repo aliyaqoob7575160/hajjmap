@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { ArrowLeft, Search } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ArrowLeft, Pin, PinOff, Search, CornerUpRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -54,12 +54,51 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "asma", label: "99 Names" },
 ];
 
+const PIN_STORAGE_KEY = "labbayk.duas.pins";
+
 function DuasPage() {
   const [tab, setTab] = useState<Tab>("all");
   const [sCategory, setSCategory] = useState<SDuaCategory | "all">("all");
   const [gCategory, setGCategory] = useState<GeneralSubCategory | "all">("all");
   const [query, setQuery] = useState("");
   const [openDua, setOpenDua] = useState<string | null>(null);
+  const [pins, setPins] = useState<Partial<Record<Tab, string>>>({});
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(PIN_STORAGE_KEY);
+      if (raw) setPins(JSON.parse(raw));
+    } catch {}
+  }, []);
+
+  const savePins = useCallback((next: Partial<Record<Tab, string>>) => {
+    setPins(next);
+    try {
+      localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(next));
+    } catch {}
+  }, []);
+
+  const togglePin = useCallback(
+    (id: string, e?: React.MouseEvent) => {
+      e?.stopPropagation();
+      const next = { ...pins };
+      if (next[tab] === id) delete next[tab];
+      else next[tab] = id;
+      savePins(next);
+    },
+    [pins, savePins, tab],
+  );
+
+  const jumpToPin = useCallback(() => {
+    const id = pins[tab];
+    if (!id) return;
+    const el = document.getElementById(`dua-card-${id}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("ring-2", "ring-gold");
+      setTimeout(() => el.classList.remove("ring-2", "ring-gold"), 1600);
+    }
+  }, [pins, tab]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -91,6 +130,26 @@ function DuasPage() {
         ),
     );
   }, [query]);
+
+  const pinnedId = pins[tab];
+
+  const PinButton = ({ id }: { id: string }) => (
+    <button
+      type="button"
+      onClick={(e) => togglePin(id, e)}
+      aria-label={pins[tab] === id ? "Remove pin" : "Pin this dua"}
+      className={cn(
+        "rounded-full border p-1.5 transition-colors",
+        pins[tab] === id
+          ? "border-gold bg-gold/15 text-gold"
+          : "border-border/60 bg-card text-muted-foreground hover:text-foreground",
+      )}
+    >
+      {pins[tab] === id ? <Pin className="h-3.5 w-3.5 fill-current" /> : <PinOff className="h-3.5 w-3.5" />}
+    </button>
+  );
+
+
 
 
 
