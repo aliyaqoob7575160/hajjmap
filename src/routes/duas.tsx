@@ -46,6 +46,9 @@ function DuasPage() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return libraryDuas.filter((d) => {
+      // Skip cross-reference stubs (no text of their own — they point to another entry)
+      if (!d.arabic && !d.translation && !d.transliteration) return false;
+
       if (tab !== "all" && tab !== "asma" && d.category !== tab) return false;
       if (!q) return true;
       return (
