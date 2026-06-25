@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { duas, locations, type HajjDay, type LocationId } from "@/data/hajj";
+import { locations, type HajjDay, type LocationId } from "@/data/hajj";
+import { getDuaTitle } from "@/lib/duas";
 import { usePrefersReducedMotion } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
 
@@ -61,7 +62,7 @@ export function Timeline({ day, activeSite, onOpenDua }: TimelineProps) {
                       variant="outline"
                     >
                       <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-gold" />
-                      {duas[id].title}
+                      {getDuaTitle(id)}
                     </Badge>
                   ))}
                 </div>
