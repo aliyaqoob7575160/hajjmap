@@ -5,16 +5,17 @@ export interface ResolvedDua {
   id: string;
   title: string;
   occasion?: string;
-  arabic: string;
-  transliteration: string;
-  translation: string;
-  source: string;
+  arabic: string | null;
+  transliteration: string | null;
+  translation: string | null;
+  source: string | null;
   story?: Dua["story"];
   locationMarker?: string | null;
   note?: string | null;
   tags?: string[];
   category?: LibraryDua["category"];
   hajjLocation?: boolean;
+  instructionOnly?: boolean;
 }
 
 export function getDua(id: string): ResolvedDua | null {
@@ -45,5 +46,10 @@ export function getDua(id: string): ResolvedDua | null {
     tags: lib.tags,
     category: lib.category,
     hajjLocation: lib.hajjLocation,
+    instructionOnly: lib.instructionOnly,
   };
+}
+
+export function getDuaTitle(id: string): string {
+  return getDua(id)?.title ?? id;
 }
