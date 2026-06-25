@@ -19,12 +19,18 @@ export interface LibraryDua {
 }
 
 export interface AsmaName {
-  number: number | null;
-  arabic: string;
   transliteration: string;
   meaning: string;
-  optional: boolean;
 }
+
+export interface AsmaDuaGroup {
+  id: string;
+  names: AsmaName[];
+  invocation: string;
+  dua: string;
+  timestamp?: string;
+}
+
 
 export const libraryDuas: LibraryDua[] = [
   {
