@@ -79,6 +79,18 @@ export function Header({
           )}
 
           <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            aria-label="Duas Library"
+            className="h-10 w-10 rounded-full border border-border/60"
+          >
+            <Link to="/duas">
+              <BookOpen className="h-4 w-4" />
+            </Link>
+          </Button>
+
+          <Button
             variant="ghost"
             size="icon"
             onClick={onToggleTheme}
