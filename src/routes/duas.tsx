@@ -48,6 +48,7 @@ const TABS: { id: Tab; label: string }[] = [
 
 function DuasPage() {
   const [tab, setTab] = useState<Tab>("all");
+  const [sCategory, setSCategory] = useState<SDuaCategory | "all">("all");
   const [query, setQuery] = useState("");
   const [openDua, setOpenDua] = useState<string | null>(null);
 
@@ -131,7 +132,78 @@ function DuasPage() {
           ))}
         </div>
 
-        {tab === "asma" ? null : tab === "prophets" ? (
+        {tab === "asma" ? null : tab === "sduas" ? (
+          <div className="mt-6 space-y-6">
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setSCategory("all")}
+                className={cn(
+                  "rounded-full border px-3.5 py-1 text-[11px] font-semibold transition-colors sm:text-xs",
+                  sCategory === "all"
+                    ? "border-gold bg-gold/15 text-foreground"
+                    : "border-border/70 bg-card text-muted-foreground hover:text-foreground",
+                )}
+              >
+                All
+              </button>
+              {sDuaCategoryOrder.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSCategory(cat)}
+                  className={cn(
+                    "rounded-full border px-3.5 py-1 text-[11px] font-semibold transition-colors sm:text-xs",
+                    sCategory === cat
+                      ? "border-gold bg-gold/15 text-foreground"
+                      : "border-border/70 bg-card text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {sDuaCategoryLabels[cat]}
+                </button>
+              ))}
+            </div>
+
+            {sDuas.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-border/60 bg-card/40 p-8 text-center">
+                <p className="text-sm font-semibold text-foreground">S Duas — coming soon</p>
+                <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-muted-foreground">
+                  This collection is reserved for verified supplications grouped by daily use
+                  (morning &amp; evening, night, tahajjud, zikar, while walking, for kids, and more).
+                  Verified entries will appear here as they're added.
+                </p>
+              </div>
+            ) : (
+              <ul className="grid gap-3 sm:grid-cols-2">
+                {(sCategory === "all" ? sDuas : sDuasByCategory[sCategory]).map((d) => (
+                  <li key={d.id}>
+                    <Card className="border border-border/70 bg-card p-5 shadow-[var(--shadow-soft)]">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+                        {sDuaCategoryLabels[d.category]}
+                      </span>
+                      <h3 className="mt-2 text-base font-semibold tracking-tight sm:text-lg">{d.title}</h3>
+                      {d.arabic && (
+                        <p dir="rtl" className="mt-3 font-arabic text-xl leading-[1.9] text-foreground line-clamp-2">
+                          {d.arabic}
+                        </p>
+                      )}
+                      {d.translation && (
+                        <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-2">
+                          {d.translation}
+                        </p>
+                      )}
+                      {d.source && (
+                        <p className="mt-3 text-[11px] uppercase tracking-[0.12em] text-muted-foreground/80">
+                          {d.source}
+                        </p>
+                      )}
+                    </Card>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ) : tab === "prophets" ? (
           <div className="mt-6 space-y-8">
             {(() => {
               const groups = new Map<string, typeof filtered>();
