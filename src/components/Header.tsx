@@ -1,4 +1,4 @@
-import { BookOpen, Moon, Sun } from "lucide-react";
+import { BookOpen, Backpack, Moon, Sun } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";

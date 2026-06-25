@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PrepareRouteImport } from './routes/prepare'
 import { Route as DuasRouteImport } from './routes/duas'
 import { Route as IndexRouteImport } from './routes/index'
 
+const PrepareRoute = PrepareRouteImport.update({
+  id: '/prepare',
+  path: '/prepare',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DuasRoute = DuasRouteImport.update({
   id: '/duas',
   path: '/duas',
@@ -26,31 +32,42 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/duas': typeof DuasRoute
+  '/prepare': typeof PrepareRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/duas': typeof DuasRoute
+  '/prepare': typeof PrepareRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/duas': typeof DuasRoute
+  '/prepare': typeof PrepareRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/duas'
+  fullPaths: '/' | '/duas' | '/prepare'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/duas'
-  id: '__root__' | '/' | '/duas'
+  to: '/' | '/duas' | '/prepare'
+  id: '__root__' | '/' | '/duas' | '/prepare'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DuasRoute: typeof DuasRoute
+  PrepareRoute: typeof PrepareRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/prepare': {
+      id: '/prepare'
+      path: '/prepare'
+      fullPath: '/prepare'
+      preLoaderRoute: typeof PrepareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/duas': {
       id: '/duas'
       path: '/duas'
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DuasRoute: DuasRoute,
+  PrepareRoute: PrepareRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
