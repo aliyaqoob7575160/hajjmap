@@ -141,15 +141,15 @@ export const days: HajjDay[] = [
     { id: "10-4", time: "Then",            title: "Tawaf al-Ifadah and Sa'i",           locationId: "haram",      description: "The pilgrim goes to Makkah for the essential Tawaf al-Ifadah and the Sa'i between Safa and Marwah, then returns to Mina.", duaIds: ["tawaf", "sai", "H7", "H8", "H9", "H10", "H11", "H12"] },
   ] },
   { id: "11", hijriLabel: "11 Dhul-Hijjah", name: "Ayyam at-Tashriq (1)", subtitle: "First day of Tashriq in Mina", camera: { focus: ["mina"], primary: "mina" }, events: [
-    { id: "11-1", time: "After Dhuhr", title: "Stone the three Jamarat", locationId: "mina", description: "All three pillars are stoned in order — the small (Sughra), the middle (Wusta), then the large (Aqaba) — seven pebbles each, with du'a after the first two.", duaIds: ["jamarat"] },
+    { id: "11-1", time: "After Dhuhr", title: "Stone the three Jamarat", locationId: "mina", description: "All three pillars are stoned in order — the small (Sughra), the middle (Wusta), then the large (Aqaba) — seven pebbles each, with du'a after the first two.", duaIds: ["jamarat", "H15", "H16"] },
     { id: "11-2", time: "Throughout",  title: "Nights and remembrance in Mina", locationId: "mina", description: "The night is spent in Mina; the takbir of Tashriq is repeated after the prayers and throughout the day.", duaIds: ["takbirTashriq"] },
   ] },
   { id: "12", hijriLabel: "12 Dhul-Hijjah", name: "Ayyam at-Tashriq (2)", subtitle: "Second day of Tashriq — optional early departure", camera: { focus: ["mina"], primary: "mina" }, events: [
-    { id: "12-1", time: "After Dhuhr", title: "Stone the three Jamarat", locationId: "mina", description: "The three pillars are stoned again in order, seven pebbles each.", duaIds: ["jamarat"] },
+    { id: "12-1", time: "After Dhuhr", title: "Stone the three Jamarat", locationId: "mina", description: "The three pillars are stoned again in order, seven pebbles each.", duaIds: ["jamarat", "H15", "H16"] },
     { id: "12-2", time: "Before sunset", title: "Optional departure (Ta'ajjul)", locationId: "mina", description: "Whoever wishes may leave Mina before sunset (Ta'ajjul); whoever stays completes the 13th. Both are permitted (Qur'an 2:203).", duaIds: ["takbirTashriq"] },
   ] },
   { id: "13", hijriLabel: "13 Dhul-Hijjah", name: "Ayyam at-Tashriq (3)", subtitle: "Final day of Tashriq and the farewell", camera: { focus: ["mina", "haram"], primary: "haram" }, events: [
-    { id: "13-1", time: "After Dhuhr", title: "Stone the three Jamarat", locationId: "mina", description: "For those who stayed, the three pillars are stoned a final time, seven pebbles each.", duaIds: ["jamarat"] },
-    { id: "13-2", time: "Before leaving Makkah", title: "Tawaf al-Wada (the farewell)", locationId: "haram", description: "The last act before leaving is the farewell Tawaf around the Kaaba, so the pilgrim's final moment in the Sacred Mosque is at the House of Allah.", duaIds: ["tawaf"] },
+    { id: "13-1", time: "After Dhuhr", title: "Stone the three Jamarat", locationId: "mina", description: "For those who stayed, the three pillars are stoned a final time, seven pebbles each.", duaIds: ["jamarat", "H15", "H16"] },
+    { id: "13-2", time: "Before leaving Makkah", title: "Tawaf al-Wada (the farewell)", locationId: "haram", description: "The last act before leaving is the farewell Tawaf around the Kaaba, so the pilgrim's final moment in the Sacred Mosque is at the House of Allah.", duaIds: ["tawaf", "H17"] },
   ] },
 ];
