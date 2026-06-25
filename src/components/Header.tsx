@@ -82,6 +82,18 @@ export function Header({
             asChild
             variant="ghost"
             size="icon"
+            aria-label="Prepare for Hajj & Umrah"
+            className="h-10 w-10 rounded-full border border-border/60"
+          >
+            <Link to="/prepare">
+              <Backpack className="h-4 w-4" />
+            </Link>
+          </Button>
+
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
             aria-label="Duas Library"
             className="h-10 w-10 rounded-full border border-border/60"
           >
