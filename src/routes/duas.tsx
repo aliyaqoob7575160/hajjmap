@@ -228,10 +228,10 @@ function DuasPage() {
               type="button"
               onClick={jumpToPin}
               className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-gold/60 bg-gold/10 px-3.5 py-1.5 text-xs font-semibold text-gold transition-colors hover:bg-gold/20"
-              title={`Jump to pinned ${pinnedId}`}
+              title={`Jump to pinned ${pinnedId} in ${activeScopeLabel}`}
             >
               <CornerUpRight className="h-3.5 w-3.5" />
-              Jump to pin · {pinnedId}
+              Pin · {activeScopeLabel} · {pinnedId}
             </button>
           )}
         </div>
@@ -356,7 +356,7 @@ function DuasPage() {
                                   Hajj station
                                 </Badge>
                               )}
-                              <PinButton id={d.id} />
+                              <PinButton id={d.id} subKey={prophet} />
                             </div>
                           </div>
                           <h3 className="mt-2 text-base font-semibold tracking-tight sm:text-lg">
