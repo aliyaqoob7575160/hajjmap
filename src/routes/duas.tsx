@@ -6,7 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DuaSheet } from "@/components/DuaSheet";
-import { libraryDuas, asmaUlHusna, type LibraryDua } from "@/data/duas-library";
+import { libraryDuas as baseDuas, asmaUlHusna, type LibraryDua } from "@/data/duas-library";
+import {
+  generalDuasFromPdf,
+  generalSubCategoryLabels,
+  generalSubCategoryOrder,
+  type GeneralSubCategory,
+} from "@/data/general-duas";
 import {
   sDuas,
   sDuasByCategory,
@@ -16,18 +22,20 @@ import {
 } from "@/data/s-duas";
 import { cn } from "@/lib/utils";
 
+const libraryDuas: LibraryDua[] = [...baseDuas, ...generalDuasFromPdf];
+
 export const Route = createFileRoute("/duas")({
   head: () => ({
     meta: [
       { title: "Duas Library — Labbayk" },
       {
         name: "description",
-        content: "A library of 100 authentic supplications for Hajj, Umrah and daily life, plus the 99 Names of Allah.",
+        content: "A library of authentic supplications for Hajj, Umrah and daily life, plus the 99 Names of Allah.",
       },
       { property: "og:title", content: "Duas Library — Labbayk" },
       {
         property: "og:description",
-        content: "Browse 100 authentic Hajj, Umrah and Qur'anic duas with Arabic, transliteration, translation and sources.",
+        content: "Browse authentic Hajj, Umrah and Qur'anic duas with Arabic, transliteration, translation and sources.",
       },
     ],
   }),
@@ -49,16 +57,16 @@ const TABS: { id: Tab; label: string }[] = [
 function DuasPage() {
   const [tab, setTab] = useState<Tab>("all");
   const [sCategory, setSCategory] = useState<SDuaCategory | "all">("all");
+  const [gCategory, setGCategory] = useState<GeneralSubCategory | "all">("all");
   const [query, setQuery] = useState("");
   const [openDua, setOpenDua] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return libraryDuas.filter((d) => {
-      // Skip cross-reference stubs (no text of their own — they point to another entry)
       if (!d.arabic && !d.translation && !d.transliteration) return false;
-
-      if (tab !== "all" && tab !== "asma" && d.category !== tab) return false;
+      if (tab !== "all" && tab !== "asma" && tab !== "sduas" && d.category !== tab) return false;
+      if (tab === "general" && gCategory !== "all" && d.subCategory !== gCategory) return false;
       if (!q) return true;
       return (
         d.title.toLowerCase().includes(q) ||
@@ -67,7 +75,7 @@ function DuasPage() {
         (d.tags ?? []).some((t) => t.toLowerCase().includes(q))
       );
     });
-  }, [tab, query]);
+  }, [tab, query, gCategory]);
 
   const filteredAsma = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -83,6 +91,7 @@ function DuasPage() {
         ),
     );
   }, [query]);
+
 
 
   return (
@@ -229,12 +238,12 @@ function DuasPage() {
                       {items.length} {items.length === 1 ? "dua" : "duas"}
                     </span>
                   </div>
-                  <ul className="grid gap-3 sm:grid-cols-2">
+                  <ul className="space-y-3">
                     {items.map((d) => (
                       <li key={d.id}>
                         <Card
                           onClick={() => setOpenDua(d.id)}
-                          className="cursor-pointer border border-border/70 bg-card p-5 shadow-[var(--shadow-soft)] transition-all hover:border-gold/60 hover:shadow-[var(--shadow-gold)]"
+                          className="cursor-pointer border border-border/70 bg-card p-5 shadow-[var(--shadow-soft)] transition-all hover:border-gold/60 hover:shadow-[var(--shadow-gold)] sm:p-6"
                         >
                           <div className="flex items-baseline justify-between gap-3">
                             <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
@@ -246,16 +255,16 @@ function DuasPage() {
                               </Badge>
                             )}
                           </div>
-                          <h3 className="mt-2 text-sm font-semibold tracking-tight sm:text-base">
+                          <h3 className="mt-2 text-base font-semibold tracking-tight sm:text-lg">
                             {d.title.split(":").slice(1).join(":").trim() || d.title}
                           </h3>
                           {d.arabic && (
-                            <p dir="rtl" className="mt-3 font-arabic text-xl leading-[1.9] text-foreground line-clamp-2">
+                            <p dir="rtl" className="mt-3 font-arabic text-2xl leading-[2] text-foreground sm:text-[1.75rem]">
                               {d.arabic}
                             </p>
                           )}
                           {d.translation && (
-                            <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-2">
+                            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                               {d.translation}
                             </p>
                           )}
@@ -268,54 +277,94 @@ function DuasPage() {
                       </li>
                     ))}
                   </ul>
+
                 </section>
               ));
             })()}
           </div>
         ) : (
-          <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-            {filtered.map((d) => (
-              <li key={d.id}>
-                <Card
-                  onClick={() => setOpenDua(d.id)}
-                  className="cursor-pointer border border-border/70 bg-card p-5 shadow-[var(--shadow-soft)] transition-all hover:border-gold/60 hover:shadow-[var(--shadow-gold)]"
+          <div className="mt-6 space-y-5">
+            {tab === "general" && (
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setGCategory("all")}
+                  className={cn(
+                    "rounded-full border px-3.5 py-1 text-[11px] font-semibold transition-colors sm:text-xs",
+                    gCategory === "all"
+                      ? "border-gold bg-gold/15 text-foreground"
+                      : "border-border/70 bg-card text-muted-foreground hover:text-foreground",
+                  )}
                 >
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
-                      {d.id} · {d.category.replace("_", " & ")}
-                    </span>
-                    {d.hajjLocation && (
-                      <Badge className="rounded-full border border-gold/40 bg-gold/10 text-[10px] text-gold-foreground" variant="outline">
-                        Hajj station
-                      </Badge>
+                  All
+                </button>
+                {generalSubCategoryOrder.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setGCategory(cat)}
+                    className={cn(
+                      "rounded-full border px-3.5 py-1 text-[11px] font-semibold transition-colors sm:text-xs",
+                      gCategory === cat
+                        ? "border-gold bg-gold/15 text-foreground"
+                        : "border-border/70 bg-card text-muted-foreground hover:text-foreground",
                     )}
-                  </div>
-                  <h3 className="mt-2 text-base font-semibold tracking-tight sm:text-lg">{d.title}</h3>
-                  {d.arabic && (
-                    <p dir="rtl" className="mt-3 font-arabic text-xl leading-[1.9] text-foreground line-clamp-2">
-                      {d.arabic}
-                    </p>
-                  )}
-                  {d.translation && (
-                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-2">
-                      {d.translation}
-                    </p>
-                  )}
-                  {d.source && (
-                    <p className="mt-3 text-[11px] uppercase tracking-[0.12em] text-muted-foreground/80">
-                      {d.source}
-                    </p>
-                  )}
-                </Card>
-              </li>
-            ))}
-            {filtered.length === 0 && (
-              <li className="col-span-full rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
-                No duas match your search.
-              </li>
+                  >
+                    {generalSubCategoryLabels[cat]}
+                  </button>
+                ))}
+              </div>
             )}
-          </ul>
+            <ul className="space-y-3">
+              {filtered.map((d) => (
+                <li key={d.id}>
+                  <Card
+                    onClick={() => setOpenDua(d.id)}
+                    className="cursor-pointer border border-border/70 bg-card p-5 shadow-[var(--shadow-soft)] transition-all hover:border-gold/60 hover:shadow-[var(--shadow-gold)] sm:p-6"
+                  >
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+                        {d.id} · {d.subCategory ? generalSubCategoryLabels[d.subCategory as GeneralSubCategory] ?? d.category.replace("_", " & ") : d.category.replace("_", " & ")}
+                      </span>
+                      {d.hajjLocation && (
+                        <Badge className="rounded-full border border-gold/40 bg-gold/10 text-[10px] text-gold-foreground" variant="outline">
+                          Hajj station
+                        </Badge>
+                      )}
+                    </div>
+                    <h3 className="mt-2 text-base font-semibold tracking-tight sm:text-lg">{d.title}</h3>
+                    {d.arabic && (
+                      <p dir="rtl" className="mt-3 font-arabic text-2xl leading-[2] text-foreground sm:text-[1.75rem]">
+                        {d.arabic}
+                      </p>
+                    )}
+                    {d.transliteration && (
+                      <p className="mt-2 text-sm italic leading-relaxed text-foreground/80">
+                        {d.transliteration}
+                      </p>
+                    )}
+                    {d.translation && (
+                      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                        {d.translation}
+                      </p>
+                    )}
+                    {d.source && (
+                      <p className="mt-3 text-[11px] uppercase tracking-[0.12em] text-muted-foreground/80">
+                        {d.source}
+                      </p>
+                    )}
+                  </Card>
+                </li>
+              ))}
+              {filtered.length === 0 && (
+                <li className="rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
+                  No duas match your search.
+                </li>
+              )}
+            </ul>
+          </div>
         )}
+
 
         {tab === "asma" && (
 

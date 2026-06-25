@@ -16,6 +16,7 @@ export interface LibraryDua {
   tags: string[];
   hajjLocation: boolean;
   instructionOnly: boolean;
+  subCategory?: string;
 }
 
 export interface AsmaName {
