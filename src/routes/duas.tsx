@@ -235,8 +235,10 @@ function DuasPage() {
               </li>
             )}
           </ul>
+        )}
 
-        ) : (
+        {tab === "asma" && (
+
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
             {filteredAsma.map((g) => (
               <li key={g.id}>
