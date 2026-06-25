@@ -119,7 +119,7 @@ export const duas: Record<string, Dua> = {
 
 export const days: HajjDay[] = [
   { id: "8", hijriLabel: "8 Dhul-Hijjah", name: "Yawm at-Tarwiyah", subtitle: "The day of setting out — Makkah to Mina", camera: { focus: ["haram", "mina"], primary: "mina" }, events: [
-    { id: "8-1", time: "Morning",        title: "Enter ihram and intend Hajj",   locationId: "haram", description: "Pilgrims performing Tamattu enter ihram from their lodging in Makkah, make the intention for Hajj, and begin the Talbiyah.", duaIds: ["talbiyah"] },
+    { id: "8-1", time: "Morning",        title: "Enter ihram and intend Hajj",   locationId: "haram", description: "Pilgrims performing Tamattu enter ihram from their lodging in Makkah, make the intention for Hajj, and begin the Talbiyah.", duaIds: ["talbiyah", "H2", "P18"] },
     { id: "8-2", time: "Before midday",  title: "Travel to Mina",                locationId: "mina",  description: "The pilgrims move to Mina, reciting the Talbiyah along the way.", duaIds: ["talbiyah"] },
     { id: "8-3", time: "Midday onward",  title: "Five prayers in Mina",          locationId: "mina",  description: "Dhuhr, Asr, Maghrib, Isha, and the Fajr of the 9th are prayed shortened (not combined) in Mina; the night is spent there.", duaIds: [] },
   ] },
